@@ -10,7 +10,7 @@
       <nav id="main-nav" class="sm:flex nav-desktop space-x-3">
         <a href="/" class="px-3 py-2 text-sm rounded hover:bg-gray-100">{{ _('nav.home') }}</a>
         <a href="/settings" class="px-3 py-2 text-sm rounded hover:bg-gray-100">{{ _('nav.settings') }}</a>
-        <a href="/placeholder" class="px-3 py-2 text-sm rounded hover:bg-gray-100">{{ _('nav.placeholder') }}</a>
+        <a href="/members" class="px-3 py-2 text-sm rounded hover:bg-gray-100">{{ _('nav.members') }}</a>
       </nav>
 
     </div>
@@ -54,7 +54,7 @@
     <div class="px-4 py-2 space-y-1">
       <a href="/" class="block px-3 py-2 rounded">{{ _('nav.home') }}</a>
       <a href="/settings" class="block px-3 py-2 rounded">{{ _('nav.settings') }}</a>
-      <a href="/placeholder" class="block px-3 py-2 rounded">{{ _('nav.placeholder') }}</a>
+      <a href="/members" class="block px-3 py-2 rounded">{{ _('nav.members') }}</a>
       {% if request.state.user %}
         <div class="border-t mt-2 pt-2">
           <div class="px-3 py-2">{{ request.state.user.username }}</div>

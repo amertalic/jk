@@ -1,0 +1,113 @@
+{# This fragment contains the members list + pagination and is used by HTMX updates #}
+
+  {% if members %}
+    <!-- Responsive: stacked cards for small screens -->
+    <div class="sm:hidden space-y-3">
+      {% for m in members %}
+        <article class="bg-white border rounded p-4 shadow-sm">
+          <div class="flex justify-between items-start">
+            <div>
+              <div class="text-base font-medium">{{ m.name }} {{ m.surname }}</div>
+              <div class="text-sm text-gray-500">ID: {{ m.id }}</div>
+            </div>
+            <div class="text-sm text-right flex flex-col items-end gap-2">
+              <a href="/members/{{ m.id }}/edit" class="inline-flex items-center px-3 py-1 bg-yellow-100 text-yellow-800 rounded text-sm hover:bg-yellow-200">{{ _('members.edit') }}</a>
+              <form method="post" action="/members/{{ m.id }}/delete" onsubmit="return confirm('{{ _('members.confirm_delete') }}')">
+                <button class="inline-flex items-center px-3 py-1 bg-red-100 text-red-700 rounded text-sm hover:bg-red-200">{{ _('members.delete') }}</button>
+              </form>
+            </div>
+          </div>
+          <dl class="mt-3 text-sm grid grid-cols-2 gap-y-2 gap-x-4">
+            <div><dt class="text-gray-500 text-xs">{{ _('members.levels') }}</dt><dd class="mt-1">{{ _('level.' ~ level_map[m.level_id]) if m.level_id and level_map.get(m.level_id) else (m.level_id or '') }}</dd></div>
+            <div><dt class="text-gray-500 text-xs">{{ _('members.locations') }}</dt><dd class="mt-1">{{ location_map[m.location_id] if m.location_id and location_map.get(m.location_id) else (m.location_id or '') }}</dd></div>
+            <div><dt class="text-gray-500 text-xs">{{ _('members.sex') }}</dt><dd class="mt-1">{{ _(sex_map[m.sex]) if m.sex and sex_map.get(m.sex) else (m.sex or '') }}</dd></div>
+            <div><dt class="text-gray-500 text-xs">{{ _('members.status') }}</dt><dd class="mt-1">{{ _(status_map[m.status]) if m.status and status_map.get(m.status) else (m.status or '') }}</dd></div>
+          </dl>
+        </article>
+      {% endfor %}
+    </div>
+
+    <!-- Desktop/table view -->
+    <div class="hidden sm:block">
+      <div class="overflow-x-auto bg-white border rounded shadow-sm">
+        <table class="w-full text-sm table-auto">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="p-3 text-left w-16">ID</th>
+              <th class="p-3 text-left">{{ _('members.name') }}</th>
+              <th class="p-3 text-left">{{ _('members.surname') }}</th>
+              <th class="p-3 text-left">{{ _('members.levels') }}</th>
+              <th class="p-3 text-left">{{ _('members.locations') }}</th>
+              <th class="p-3 text-left">{{ _('members.sex') }}</th>
+              <th class="p-3 text-left">{{ _('members.status') }}</th>
+              <th class="p-3 text-left w-36">{{ _('members.actions') }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for m in members %}
+              <tr class="border-t hover:bg-gray-50 align-top">
+                <td class="p-3 break-words align-top">{{ m.id }}</td>
+                <td class="p-3 break-words align-top">{{ m.name }}</td>
+                <td class="p-3 break-words align-top">{{ m.surname }}</td>
+                <td class="p-3 break-words align-top">{{ _('level.' ~ level_map[m.level_id]) if m.level_id and level_map.get(m.level_id) else (m.level_id or '') }}</td>
+                <td class="p-3 break-words align-top">{{ location_map[m.location_id] if m.location_id and location_map.get(m.location_id) else (m.location_id or '') }}</td>
+                <td class="p-3 break-words align-top">{{ _(sex_map[m.sex]) if m.sex and sex_map.get(m.sex) else (m.sex or '') }}</td>
+                <td class="p-3 break-words align-top">{{ _(status_map[m.status]) if m.status and status_map.get(m.status) else (m.status or '') }}</td>
+                <td class="p-3 align-top">
+                  <div class="flex items-center gap-2">
+                    <a href="/members/{{ m.id }}/edit" class="inline-flex items-center px-2 py-1 bg-yellow-100 text-yellow-800 rounded text-sm hover:bg-yellow-200">{{ _('members.edit') }}</a>
+                    <form method="post" action="/members/{{ m.id }}/delete" style="display:inline" onsubmit="return confirm('{{ _('members.confirm_delete') }}')">
+                      <button class="inline-flex items-center px-2 py-1 bg-red-100 text-red-700 rounded text-sm hover:bg-red-200">{{ _('members.delete') }}</button>
+                    </form>
+                  </div>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  {% else %}
+    <div class="text-base text-gray-600">{{ _('members.none') }}</div>
+  {% endif %}
+
+  <div class="mt-4 flex flex-col sm:flex-row items-center justify-between text-sm gap-3">
+    <div class="text-gray-700">{{ _('members.total') }}: <span class="font-medium">{{ total }}</span></div>
+    <div class="flex items-center gap-2">
+      {% set qp = [] %}
+      {% if current_q %}
+        {% set qp = qp + [ ('q', current_q) ] %}
+      {% endif %}
+      {% if current_level %}
+        {% set qp = qp + [ ('level', current_level) ] %}
+      {% endif %}
+      {% if current_status %}
+        {% set qp = qp + [ ('status', current_status) ] %}
+      {% endif %}
+      {% if current_sex %}
+        {% set qp = qp + [ ('sex', current_sex) ] %}
+      {% endif %}
+      {% if current_location %}
+        {% set qp = qp + [ ('location', current_location) ] %}
+      {% endif %}
+
+      {% macro qs(page_to) %}
+        {% set s = 'page=' ~ page_to ~ '&per_page=' ~ per_page %}
+        {% for k, v in qp %}
+          {% set s = s ~ '&' ~ k ~ '=' ~ v %}
+        {% endfor %}
+        {{ s }}
+      {% endmacro %}
+
+      <nav class="flex items-center gap-2" aria-label="Pagination">
+        {% if page > 1 %}
+          <a href="/members?{{ qs(page-1) }}" class="px-3 py-1 border rounded bg-white hover:bg-gray-50">&larr; {{ _('members.prev') }}</a>
+        {% endif %}
+        <div class="px-3 py-1 border rounded bg-white">{{ page }} / {{ last_page }}</div>
+        {% if page < last_page %}
+          <a href="/members?{{ qs(page+1) }}" class="px-3 py-1 border rounded bg-white hover:bg-gray-50">{{ _('members.next') }} &rarr;</a>
+        {% endif %}
+      </nav>
+    </div>
+  </div>

@@ -5,7 +5,7 @@ from endpoints import auth as auth_router
 from endpoints import i18n as i18n_router
 from endpoints import settings as settings_router
 from endpoints import home as home_router
-from endpoints import placeholder as placeholder_router
+from endpoints import members as members_router
 from contextlib import asynccontextmanager
 from settings import settings
 import jwt
@@ -135,7 +135,7 @@ app.include_router(settings_router.router)
 app.include_router(auth_router.router)
 app.include_router(i18n_router.router)
 app.include_router(home_router.router)
-app.include_router(placeholder_router.router)
+app.include_router(members_router.router)
 
 app.add_middleware(AuthMiddleware)
 

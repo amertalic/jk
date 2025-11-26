@@ -52,7 +52,8 @@ class User(Base):
         UniqueConstraint(
             "tenant_schema", "username", name="uq_shared_users_tenant_username"
         ),
-        UniqueConstraint("tenant_schema", "email", name="uq_shared_users_tenant_email"),    )
+        UniqueConstraint("tenant_schema", "email", name="uq_shared_users_tenant_email"),
+    )
 
     id = Column(Integer, primary_key=True, index=True)
     username = Column(String, nullable=False, index=True)
@@ -85,6 +86,7 @@ class Location(Base):
         session.add(location)
         session.commit()
     """
+
     __tablename__ = "locations"
 
     id: Mapped[int] = mapped_column(primary_key=True)
@@ -113,10 +115,13 @@ class Level(Base):
         session.add_all([white_belt, yellow_belt])
         session.commit()
     """
+
     __tablename__ = "levels"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    name: Mapped[str] = mapped_column(String(50), unique=True, nullable=False)  # e.g., "White Belt", "Yellow Belt"
+    name: Mapped[str] = mapped_column(
+        String(50), unique=True, nullable=False
+    )  # e.g., "White Belt", "Yellow Belt"
     rank: Mapped[int] = mapped_column(nullable=False)  # For ordering (1, 2, 3...)
 
     # Relationships
@@ -128,7 +133,9 @@ class PaymentPrice(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     amount: Mapped[float] = mapped_column(Numeric(10, 2), nullable=False)
-    description: Mapped[str] = mapped_column(String(100))  # e.g., "Standard", "Student", "Family"
+    description: Mapped[str] = mapped_column(
+        String(100)
+    )  # e.g., "Standard", "Student", "Family"
 
     # Relationships
     payments: Mapped[List["Payment"]] = relationship(back_populates="price")
@@ -178,6 +185,7 @@ class Member(Base):
             Member.name.ilike(f"{search_term}%")
         ).limit(10).all()
     """
+
     __tablename__ = "members"
 
     id: Mapped[int] = mapped_column(primary_key=True)
@@ -185,8 +193,12 @@ class Member(Base):
     surname: Mapped[str] = mapped_column(String(100), nullable=False)
     date_of_birth: Mapped[datetime] = mapped_column(Date, nullable=False)
     sex: Mapped[Sex] = mapped_column(nullable=False)
-    status: Mapped[MemberStatus] = mapped_column(default=MemberStatus.ACTIVE, nullable=False)
-    date_of_enrolment: Mapped[datetime] = mapped_column(Date, default=datetime.utcnow, nullable=False)
+    status: Mapped[MemberStatus] = mapped_column(
+        default=MemberStatus.ACTIVE, nullable=False
+    )
+    date_of_enrolment: Mapped[datetime] = mapped_column(
+        Date, default=datetime.utcnow, nullable=False
+    )
 
     # Foreign Keys
     level_id: Mapped[int] = mapped_column(ForeignKey("levels.id"), nullable=False)
@@ -195,13 +207,15 @@ class Member(Base):
     # Relationships
     level: Mapped["Level"] = relationship(back_populates="members")
     location: Mapped["Location"] = relationship(back_populates="members")
-    payments: Mapped[List["Payment"]] = relationship(back_populates="member", cascade="all, delete-orphan")
+    payments: Mapped[List["Payment"]] = relationship(
+        back_populates="member", cascade="all, delete-orphan"
+    )
 
     # Indexes for fast querying
     __table_args__ = (
-        Index('idx_member_status', 'status'),
-        Index('idx_member_name_surname', 'name', 'surname'),
-        Index('idx_member_location', 'location_id'),
+        Index("idx_member_status", "status"),
+        Index("idx_member_name_surname", "name", "surname"),
+        Index("idx_member_location", "location_id"),
     )
 
     @property
@@ -270,17 +284,26 @@ class Payment(Base):
             Payment.period_year == 2025
         ).first() is not None
     """
+
     __tablename__ = "payments"
 
     id: Mapped[int] = mapped_column(primary_key=True)
     member_id: Mapped[int] = mapped_column(ForeignKey("members.id"), nullable=False)
-    price_id: Mapped[int | None] = mapped_column(ForeignKey("payment_prices.id"), nullable=True)  # Null for custom amounts
+    price_id: Mapped[int | None] = mapped_column(
+        ForeignKey("payment_prices.id"), nullable=True
+    )  # Null for custom amounts
 
-    amount: Mapped[float] = mapped_column(Numeric(10, 2), nullable=False)  # Actual amount paid
-    payment_date: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
+    amount: Mapped[float] = mapped_column(
+        Numeric(10, 2), nullable=False
+    )  # Actual amount paid
+    payment_date: Mapped[datetime] = mapped_column(
+        DateTime, default=datetime.utcnow, nullable=False
+    )
     period_month: Mapped[int] = mapped_column(nullable=False)  # 1-12
     period_year: Mapped[int] = mapped_column(nullable=False)
-    notes: Mapped[str | None] = mapped_column(String(255), nullable=True)  # e.g., "gratis", "free", "double"
+    notes: Mapped[str | None] = mapped_column(
+        String(255), nullable=True
+    )  # e.g., "gratis", "free", "double"
 
     # Relationships
     member: Mapped["Member"] = relationship(back_populates="payments")
@@ -288,7 +311,7 @@ class Payment(Base):
 
     # Indexes for fast payment queries
     __table_args__ = (
-        Index('idx_payment_member', 'member_id'),
-        Index('idx_payment_period', 'period_year', 'period_month'),
-        Index('idx_payment_member_period', 'member_id', 'period_year', 'period_month'),
+        Index("idx_payment_member", "member_id"),
+        Index("idx_payment_period", "period_year", "period_month"),
+        Index("idx_payment_member_period", "member_id", "period_year", "period_month"),
     )

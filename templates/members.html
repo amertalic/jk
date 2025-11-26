@@ -1,0 +1,153 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ _('nav.members') }}{% endblock %}
+
+{% block content %}
+<div class="w-full">
+  <!-- Header: title left, create button right -->
+  <div class="flex items-start justify-between mb-4 gap-4">
+    <div>
+      <h1 class="text-xl font-semibold">{{ _('members.title') }}</h1>
+    </div>
+    <div class="flex-shrink-0">
+      <a href="/members/create" class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded shadow-sm text-sm">{{ _('members.create') }}</a>
+    </div>
+  </div>
+
+  <!-- Search (full width) -->
+  <div class="mb-3">
+    <form method="get" action="/members" id="members-filter-form" class="w-full" hx-get="/members" hx-target="#members-list" hx-swap="innerHTML" hx-push-url="true">
+      <input type="hidden" name="page" value="1" />
+      <input type="hidden" name="per_page" value="{{ per_page }}" />
+
+      <div class="flex flex-col sm:flex-row sm:items-center gap-3">
+        <input
+          name="q"
+          id="members-search"
+          value="{{ current_q or '' }}"
+          placeholder="{{ _('members.search_placeholder') if _('members.search_placeholder') else 'Search name or surname' }}"
+          class="w-full sm:flex-1 border rounded px-3 py-2 text-sm shadow-sm"
+          hx-trigger="keyup changed delay:400ms"
+          hx-get="/members"
+          hx-target="#members-list"
+          hx-swap="innerHTML"
+          hx-include="#members-filter-form"
+          hx-push-url="true"
+        />
+
+        <div class="flex items-center gap-2">
+          <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded text-sm hover:bg-blue-700 transition">{{ _('members.filter') }}</button>
+          <a href="/members" class="px-3 py-2 border border-gray-200 rounded text-sm text-gray-700 bg-white hover:bg-gray-50 transition">{{ _('members.clear_filters') }}</a>
+        </div>
+      </div>
+
+      <!-- Filters row: responsive — horizontal on larger screens, stacked on small -->
+      <div class="mt-3 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+        <select name="level" class="border rounded px-2 py-2 text-sm w-full">
+          <option value="">{{ _('members.levels') if _('members.levels') else 'All levels' }}</option>
+          {% for l in levels %}
+            <option value="{{ l.id }}" {% if current_level and current_level == l.id %}selected{% endif %}>{{ _('level.' ~ l.name) }}</option>
+          {% endfor %}
+        </select>
+
+        <select name="status" class="border rounded px-2 py-2 text-sm w-full">
+          <option value="">{{ _('members.status') if _('members.status') else 'All status' }}</option>
+          {% for v, key in status_choices %}
+            <option value="{{ v }}" {% if current_status and current_status == v %}selected{% endif %}>{{ _(key) }}</option>
+          {% endfor %}
+        </select>
+
+        <select name="sex" class="border rounded px-2 py-2 text-sm w-full">
+          <option value="">{{ _('members.sex') if _('members.sex') else 'All sex' }}</option>
+          {% for v, key in sex_choices %}
+            <option value="{{ v }}" {% if current_sex and current_sex == v %}selected{% endif %}>{{ _(key) }}</option>
+          {% endfor %}
+        </select>
+
+        <select name="location" class="border rounded px-2 py-2 text-sm w-full">
+          <option value="">{{ _('members.locations') if _('members.locations') else 'All locations' }}</option>
+          {% for loc in locations %}
+            <option value="{{ loc.id }}" {% if current_location and current_location == loc.id %}selected{% endif %}>{{ loc.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+    </form>
+  </div>
+
+  {# Active filters badges (unchanged logic, tailwind-styled) #}
+  <div class="mb-3">
+    {% set active = [] %}
+    {% if current_q %}
+      {% set active = active + [ _('members.name') ~ ': ' ~ current_q ] %}
+    {% endif %}
+    {% if current_level %}
+      {% set active = active + [ _('members.levels') ~ ': ' ~ _('level.' ~ level_map[current_level]) ] %}
+    {% endif %}
+    {% if current_status %}
+      {% set active = active + [ _('members.status') ~ ': ' ~ _(status_map[current_status]) ] %}
+    {% endif %}
+    {% if current_sex %}
+      {% set active = active + [ _('members.sex') ~ ': ' ~ _(sex_map[current_sex]) ] %}
+    {% endif %}
+    {% if current_location %}
+      {% set active = active + [ _('members.locations') ~ ': ' ~ location_map[current_location] ] %}
+    {% endif %}
+
+    {% if active %}
+      <div class="flex items-center flex-wrap gap-2 text-sm">
+        <div class="text-gray-600">{{ _('members.filtering_by') }}:</div>
+        <div class="flex flex-wrap gap-2">
+          {% for a in active %}
+            <span class="px-2 py-1 bg-blue-50 text-blue-800 rounded text-sm">{{ a }}</span>
+          {% endfor %}
+        </div>
+        <a href="/members" class="ml-3 px-2 py-1 border border-gray-200 rounded text-sm text-gray-700 bg-white">{{ _('members.clear_filters') }}</a>
+      </div>
+    {% endif %}
+  </div>
+
+  <div id="members-list">
+    {% include 'members_list_fragment.html' %}
+  </div>
+</div>
+
+<!-- Small script: temporarily disable empty inputs before HTMX requests so empty selects aren't sent as empty strings (prevents int parsing errors server-side) -->
+<script>
+(function(){
+  function disableEmptyInputs(form){
+    var els = Array.from(form.querySelectorAll('select[name], input[name]'));
+    els.forEach(function(el){
+      if (el.value === '') {
+        el.dataset._disabled = '1';
+        el.disabled = true;
+      }
+    });
+    // re-enable shortly after (HTMX will have serialized the form by then)
+    setTimeout(function(){
+      els.forEach(function(el){
+        if (el.dataset && el.dataset._disabled) {
+          delete el.dataset._disabled;
+          el.disabled = false;
+        }
+      });
+    }, 50);
+  }
+
+  var form = document.getElementById('members-filter-form');
+  if (!form) return;
+
+  // on native submit
+  form.addEventListener('submit', function(e){ disableEmptyInputs(form); });
+  // on HTMX-driven requests
+  document.body.addEventListener('htmx:beforeRequest', function(evt){
+    // if request comes from inside our form or the form itself, prepare it
+    var target = evt.detail.elt;
+    if (form.contains(target) || target === form) {
+      disableEmptyInputs(form);
+    }
+  });
+})();
+</script>
+
+{% endblock %}

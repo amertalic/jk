@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ _('members.form_title') }}{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto">
+  <h1 class="text-lg font-semibold mb-4">{{ _('members.form_title') }}</h1>
+  {% if error %}
+    <div class="p-3 bg-red-50 text-red-700 rounded mb-4">{{ error }}</div>
+  {% endif %}
+
+  <form method="post" action="{{ action }}" class="bg-white border rounded p-4 space-y-3">
+    <div>
+      <label class="block text-sm">{{ _('members.name') }}</label>
+      <input name="name" value="{{ member.name if member else '' }}" class="mt-1 w-full border rounded px-2 py-1" required />
+    </div>
+
+    <div>
+      <label class="block text-sm">{{ _('members.surname') }}</label>
+      <input name="surname" value="{{ member.surname if member else '' }}" class="mt-1 w-full border rounded px-2 py-1" required />
+    </div>
+
+    <div>
+      <label class="block text-sm">{{ _('members.date_of_birth') }}</label>
+      <input type="date" name="date_of_birth" value="{{ member.date_of_birth|default('') }}" class="mt-1 w-full border rounded px-2 py-1" required />
+    </div>
+
+    <div>
+      <label class="block text-sm">{{ _('members.sex') }}</label>
+      <select name="sex" class="mt-1 w-full border rounded px-2 py-1">
+        <option value="">--</option>
+        {% for v, key in sex_choices %}
+          {% if member and member.sex == v %}
+            <option value="{{ v }}" selected>{{ _(key) }}</option>
+          {% else %}
+            <option value="{{ v }}">{{ _(key) }}</option>
+          {% endif %}
+        {% endfor %}
+      </select>
+    </div>
+
+    <div>
+      <label class="block text-sm">{{ _('members.status') }}</label>
+      <select name="status" class="mt-1 w-full border rounded px-2 py-1">
+        <option value="">--</option>
+        {% for v, key in status_choices %}
+          {% if member and member.status == v %}
+            <option value="{{ v }}" selected>{{ _(key) }}</option>
+          {% else %}
+            <option value="{{ v }}">{{ _(key) }}</option>
+          {% endif %}
+        {% endfor %}
+      </select>
+    </div>
+
+    <div>
+      <label class="block text-sm">{{ _('members.levels') }}</label>
+      <select name="level_id" class="mt-1 w-full border rounded px-2 py-1">
+        <option value="">--</option>
+        {% for l in levels %}
+          {% if member and member.level_id == l.id %}
+            <option value="{{ l.id }}" selected>{{ _('level.' ~ l.name) }}</option>
+          {% else %}
+            <option value="{{ l.id }}">{{ _('level.' ~ l.name) }}</option>
+          {% endif %}
+        {% endfor %}
+      </select>
+    </div>
+
+    <div>
+      <label class="block text-sm">{{ _('members.locations') }}</label>
+      <select name="location_id" class="mt-1 w-full border rounded px-2 py-1">
+        <option value="">--</option>
+        {% for loc in locations %}
+          {% if member and member.location_id == loc.id %}
+            <option value="{{ loc.id }}" selected>{{ loc.name }}</option>
+          {% else %}
+            <option value="{{ loc.id }}">{{ loc.name }}</option>
+          {% endif %}
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="flex items-center space-x-2 pt-2">
+      <button class="px-3 py-2 bg-blue-600 text-white rounded">{{ _('members.save') }}</button>
+      <a href="/members" class="px-3 py-2 border rounded">{{ _('members.cancel') }}</a>
+    </div>
+  </form>
+</div>
+{% endblock %}
