@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>{% block title %}{{ title if title is defined else _('nav.home') }}{% endblock %}</title>
+
+  <meta name="description" content="{% block meta_description %}{{ description if description is defined else 'Manage system' }}{% endblock %}">
+  <meta name="robots" content="{% block meta_robots %}index,follow{% endblock %}">
+
+  <!-- Open Graph / Twitter -->
+  <meta property="og:title" content="{% block og_title %}{{ title if title is defined else _('nav.home') }}{% endblock %}">
+  <meta property="og:description" content="{% block og_description %}{{ description if description is defined else 'Manage system' }}{% endblock %}">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="{% block og_url %}{{ request.url if request is defined else '' }}{% endblock %}">
+  <meta name="twitter:card" content="summary_large_image">
+
+  {# Optional CSP nonce/meta placeholders (templates can pass csp_nonce) #}
+  {% if csp_nonce is defined %}
+    <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'nonce-{{ csp_nonce }}';">
+  {% endif %}
+
+  {# CSRF token (if your app uses one and injects csrf_token into templates) #}
+  <meta name="csrf-token" content="{{ csrf_token if csrf_token is defined else '' }}">
+
+  <!-- Performance hints -->
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  {# preload a local font if provided - adjust path if you add a font to static/fonts #}
+  <link rel="preload" href="/static/fonts/Inter.woff2" as="font" type="font/woff2" crossorigin>
+
+  <!-- Favicons (adjust paths as needed) -->
+  <link rel="icon" href="/static/favicon.ico" sizes="any">
+  <meta name="theme-color" content="#ffffff">
+
+  <!-- Fallback minimal CSS when Tailwind isn't available (prevents unstyled page in browsers that block the main CSS) -->
+  {% block styles %}
+    <link rel="stylesheet" href="/static/fallback.css">
+    <link rel="stylesheet" href="/static/tailwind.css?v=3">
+  {% endblock %}
+
+  {% block head_extra %}{% endblock %}
+</head>
+<body style="margin:0;padding:0;" class="bg-gray-50 min-h-screen" data-page="{{ request.url.path if request is defined else '' }}">
+
+  <a class="skip-link sr-only focus:not-sr-only" href="#main">Skip to content</a>
+
+  {% include 'header.html' %}
+
+  <!-- Live region for flash/alerts -->
+  <div id="flash-messages" aria-live="polite" class="sr-only" role="status">{% block flash %}{% endblock %}</div>
+
+  <main id="main" class="pt-4">
+    <!-- Full-width page context: content stretches to viewport, inner templates can still set their own max widths if desired -->
+    <div class="w-full px-4">
+      {% block content %}{% endblock %}
+    </div>
+  </main>
+
+  {% include 'loader.html' %}
+
+  <noscript>
+    <div class="no-js-warning p-4 bg-yellow-100 text-yellow-900">This site works better with JavaScript enabled.</div>
+  </noscript>
+
+  <!-- Cookie consent placeholder -->
+  <div id="cookie-consent" aria-hidden="true">{% block cookie_consent %}{% endblock %}</div>
+
+  <!-- Analytics placeholder -->
+  {% block analytics %}{% endblock %}
+
+  {% block scripts %}
+    <script>
+      // small helper to toggle dropdowns
+      function toggleDropdown(id){ try{ document.getElementById(id).classList.toggle('hidden') }catch(e){}
+      }
+      // Defensive: ensure global loader hidden on initial load
+      document.addEventListener('DOMContentLoaded', function(){
+        try{
+          var g = document.querySelector('.global-loader');
+          if(g){ g.classList.remove('show'); g.classList.add('hidden'); }
+        }catch(e){}
+      });
+    </script>
+  {% endblock %}
+</body>
+</html>

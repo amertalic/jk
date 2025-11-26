@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="min-h-screen flex items-center justify-center px-4 sm:px-6">
+    <div class="bg-white p-8 rounded-xl shadow-lg w-full max-w-md">
+        <div class="text-center mb-6">
+            <!-- simple logo without circular backdrop or animations -->
+            <img src="/static/logo.webp" alt="logo" class="mx-auto mb-3 h-12 w-12 object-contain" />
+            <h1 class="text-2xl font-extrabold tracking-tight">{{ _("login.welcome") if _ is defined else "Welcome back" }}</h1>
+            <p class="text-sm text-gray-500 mt-1">{{ _("login.subtitle") if _ is defined else "Sign in to continue to Chincher" }}</p>
+        </div>
+
+        {% if error %}
+        <div class="text-red-600 mb-4 rounded p-2 bg-red-50 border border-red-100">{{ error }}</div>
+        {% endif %}
+
+        <form method="post" action="/login" class="space-y-4">
+            <label class="block text-sm font-medium text-gray-700">{{ _("login.username") if _ is defined else "Username" }}
+                <input name="username" required class="mt-1 block w-full rounded-md border border-gray-200 p-2 bg-white input-focus" />
+            </label>
+            <label class="block text-sm font-medium text-gray-700">{{ _("login.password") if _ is defined else "Password" }}
+                <input type="password" name="password" required class="mt-1 block w-full rounded-md border border-gray-200 p-2 bg-white input-focus" />
+            </label>
+
+            <div class="flex items-center justify-between text-sm">
+                <label class="inline-flex items-center space-x-2 text-gray-600">
+                    <input type="checkbox" name="remember" class="h-4 w-4 rounded border-gray-300" />
+                    <span>{{ _("login.remember") if _ is defined else "Remember me" }}</span>
+                </label>
+            </div>
+
+            <div>
+                <button class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-5 py-2 rounded-md font-semibold shadow-md transform transition hover:-translate-y-0.5">{{ _("login.submit") if _ is defined else "Sign in" }}</button>
+            </div>
+        </form>
+
+        <div class="mt-6 text-center text-xs text-gray-400">
+            &copy; <span id="current-year"></span> {{ _("login.current_year_suffix") if _ is defined else "Chincher" }}
+        </div>
+    </div>
+</div>
+<script>
+    // dynamically fill the current year so it stays up to date
+    try { document.getElementById('current-year').textContent = new Date().getFullYear(); } catch (e) { /* ignore in non-browser contexts */ }
+</script>
+{% endblock %}

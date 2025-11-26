@@ -1,0 +1,138 @@
+<!-- templates/pagination.html -->
+{% set resource = resource if resource is defined else 'chinchillas' %}
+{% set query_params = [] %}
+{% for key, value in request.query_params.items() %}
+  {% if key != 'page' %}
+    {% set _ = query_params.append(key + '=' + value) %}
+  {% endif %}
+{% endfor %}
+{% set query_string = '&'.join(query_params) %}
+
+{# Configuration: number of page links to show (should be odd) and jump size #}
+{% set window_size = window_size if window_size is defined else 5 %}
+{% if window_size < 1 %}{% set window_size = 5 %}{% endif %}
+{% set half = (window_size // 2) %}
+{% set jump = jump if jump is defined else 5 %}
+
+{# Compute window start/end and adjust near edges #}
+{% set start = page - half %}
+{% set end = page + half %}
+
+{% if start < 1 %}
+  {% set shift = 1 - start %}
+  {% set start = 1 %}
+  {% set end = end + shift %}
+{% endif %}
+
+{% if end > total_pages %}
+  {% set shift = end - total_pages %}
+  {% set end = total_pages %}
+  {% set start = start - shift %}
+{% endif %}
+
+{% if start < 1 %}
+  {% set start = 1 %}
+{% endif %}
+
+{# Make the pagination area full-width and scrollable on very small screens so it never overflows the card #}
+<div class="flex justify-center mt-6 w-full">
+  {% if total_pages > 1 %}
+    <div class="w-full overflow-x-auto flex justify-center">
+      <nav class="inline-flex items-center space-x-1 whitespace-nowrap text-xs sm:text-sm px-2 sm:px-0" aria-label="Pagination">
+        {# First and jump-back links #}
+        {% if page > 1 %}
+          <a href="/{{ resource }}?page=1{% if query_string %}&{{ query_string }}{% endif %}"
+             class="px-1 py-1 sm:px-3 sm:py-1 bg-gray-200 rounded hover:bg-gray-300"
+             title="{{ _('pagination.page_info').format(page=1, total=total_pages) }}"
+             aria-label="{{ _('pagination.page_info').format(page=1, total=total_pages) }}">
+            {# show double-arrows on small screens, single « on larger screens #}
+            <span class="sm:hidden">&laquo;&laquo;</span>
+            <span class="hidden sm:inline">«</span>
+          </a>
+        {% endif %}
+
+        {% if page - jump >= 1 %}
+          <a href="/{{ resource }}?page={{ page - jump }}{% if query_string %}&{{ query_string }}{% endif %}"
+             class="hidden sm:inline px-2 py-1 bg-gray-200 rounded hover:bg-gray-300"
+             title="Jump back {{ jump }} pages"
+             aria-label="Jump back {{ jump }} pages">
+            <span>-{{ jump }}</span>
+          </a>
+        {% endif %}
+
+        {# Prev #}
+        {% if page > 1 %}
+          <a href="/{{ resource }}?page={{ page - 1 }}{% if query_string %}&{{ query_string }}{% endif %}"
+             class="px-1 py-1 sm:px-3 sm:py-1 bg-gray-200 rounded hover:bg-gray-300"
+             aria-label="{{ _('pagination.prev') }}"
+             title="{{ _('pagination.prev') }}">
+            <span class="sm:hidden">‹</span>
+            <span class="hidden sm:inline">&laquo; {{ _('pagination.prev') }}</span>
+          </a>
+        {% endif %}
+
+        {# Page number links #}
+        {# If window skips the first pages, show a 1 link and an ellipsis #}
+        {% if start > 1 %}
+          <a href="/{{ resource }}?page=1{% if query_string %}&{{ query_string }}{% endif %}"
+             class="px-1 py-1 sm:px-3 sm:py-1 bg-gray-100 rounded hover:bg-gray-200">1</a>
+          {% if start > 2 %}
+            <span class="px-2 text-sm text-gray-500">&hellip;</span>
+          {% endif %}
+        {% endif %}
+
+        {% for p in range(start, end + 1) %}
+          {% set distance = (p - page) | abs %}
+          {% if p == page %}
+            <span class="px-2 py-1 rounded bg-blue-600 text-white">{{ p }}</span>
+          {% else %}
+            {# Show only current±1 on xs; full window on sm+ #}
+            <a href="/{{ resource }}?page={{ p }}{% if query_string %}&{{ query_string }}{% endif %}"
+               class="px-1 py-1 sm:px-3 sm:py-1 bg-gray-100 rounded hover:bg-gray-200 {% if distance > 1 %}hidden sm:inline-block{% else %}inline-block{% endif %}">
+              {{ p }}
+            </a>
+          {% endif %}
+        {% endfor %}
+
+        {# If window skips the last pages, show an ellipsis and the last page link #}
+        {% if end < total_pages %}
+          {% if end < total_pages - 1 %}
+            <span class="px-2 text-sm text-gray-500">&hellip;</span>
+          {% endif %}
+          <a href="/{{ resource }}?page={{ total_pages }}{% if query_string %}&{{ query_string }}{% endif %}"
+             class="px-1 py-1 sm:px-3 sm:py-1 bg-gray-100 rounded hover:bg-gray-200">{{ total_pages }}</a>
+        {% endif %}
+
+        {# Next #}
+        {% if page < total_pages %}
+          <a href="/{{ resource }}?page={{ page + 1 }}{% if query_string %}&{{ query_string }}{% endif %}"
+             class="px-1 py-1 sm:px-3 sm:py-1 bg-gray-200 rounded hover:bg-gray-300"
+             aria-label="{{ _('pagination.next') }}"
+             title="{{ _('pagination.next') }}">
+            <span class="sm:hidden">›</span>
+            <span class="hidden sm:inline">{{ _('pagination.next') }} &raquo;</span>
+          </a>
+        {% endif %}
+
+        {% if page + jump <= total_pages %}
+          <a href="/{{ resource }}?page={{ page + jump }}{% if query_string %}&{{ query_string }}{% endif %}"
+             class="hidden sm:inline px-2 py-1 bg-gray-200 rounded hover:bg-gray-300"
+             title="Jump forward {{ jump }} pages"
+             aria-label="Jump forward {{ jump }} pages">
+            <span>+{{ jump }}</span>
+          </a>
+        {% endif %}
+
+        {% if page < total_pages %}
+          <a href="/{{ resource }}?page={{ total_pages }}{% if query_string %}&{{ query_string }}{% endif %}"
+             class="px-1 py-1 sm:px-3 sm:py-1 bg-gray-200 rounded hover:bg-gray-300"
+             title="{{ _('pagination.page_info').format(page=total_pages, total=total_pages) }}"
+             aria-label="{{ _('pagination.page_info').format(page=total_pages, total=total_pages) }}">
+            <span class="sm:hidden">&raquo;&raquo;</span>
+            <span class="hidden sm:inline">»</span>
+          </a>
+        {% endif %}
+      </nav>
+    </div>
+  {% endif %}
+</div>
