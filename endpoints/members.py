@@ -5,7 +5,8 @@ from i18n import i18n_dependency
 from typing import Callable, Any, Optional
 from database import get_db
 from sqlalchemy.orm import Session
-from models import Member, Level, Location
+from models import Member, Level, Location, Payment, PaymentPrice
+from datetime import datetime, date
 from constants import SEX_CHOICES, MEMBER_STATUS_CHOICES
 
 router = APIRouter()
@@ -72,25 +73,90 @@ async def members_list_page(
         page = 1
     offset = (page - 1) * per_page
     members = query.order_by(Member.id.asc()).offset(offset).limit(per_page).all()
-    members_list = [
-        {
-            "id": m.id,
-            "name": m.name,
-            "surname": m.surname,
-            "date_of_birth": getattr(m, "date_of_birth", None),
-            "sex": getattr(m, "sex", None),
-            "status": getattr(m, "status", None),
-            "level_id": getattr(m, "level_id", None),
-            "location_id": getattr(m, "location_id", None),
-        }
-        for m in members
-    ]
+
+    # Compute unpaid months since enrolment for each member shown on this page.
+    member_ids = [m.id for m in members]
+    paid_map: dict[int, set[tuple[int, int]]] = {}
+    if member_ids:
+        payments = (
+            db.query(Payment)
+            .filter(Payment.member_id.in_(member_ids))
+            .all()
+        )
+        for p in payments:
+            paid_map.setdefault(p.member_id, set()).add((p.period_year, p.period_month))
+
+    def months_between_inclusive(start_date, end_dt: datetime):
+        # start_date may be date or datetime; ensure date
+        s = start_date if isinstance(start_date, date) else start_date.date()
+        return (end_dt.year - s.year) * 12 + (end_dt.month - s.month) + 1
+
+    def iter_months(start_date, end_dt: datetime):
+        """Yield (year, month) tuples from start_date (date/datetime) inclusive to end_dt inclusive."""
+        s = start_date if isinstance(start_date, date) else start_date.date()
+        y, m = s.year, s.month
+        end_y, end_m = end_dt.year, end_dt.month
+        while (y < end_y) or (y == end_y and m <= end_m):
+            yield (y, m)
+            # increment month
+            if m == 12:
+                y += 1
+                m = 1
+            else:
+                m += 1
+
+    def format_month(y, m):
+        # Return human-friendly month like 'Nov 2025'
+        try:
+            return datetime(y, m, 1).strftime('%b %Y')
+        except Exception:
+            return f"{y:04d}-{m:02d}"
+
+    now_dt = datetime.now()
+
+    members_list = []
+    for m in members:
+        enrol = getattr(m, "date_of_enrolment", None)
+        total_months = 0
+        unpaid_list = []
+        if enrol:
+            try:
+                total_months = months_between_inclusive(enrol, now_dt)
+                if total_months < 0:
+                    total_months = 0
+            except Exception:
+                total_months = 0
+        # count paid months within [enrol, now] and build unpaid list
+        paid_set = paid_map.get(m.id, set())
+        paid_count = 0
+        if enrol and total_months > 0:
+            for (y, mo) in iter_months(enrol, now_dt):
+                if (y, mo) in paid_set:
+                    paid_count += 1
+                else:
+                    unpaid_list.append(format_month(y, mo))
+        unpaid_months = max(0, total_months - paid_count)
+
+        members_list.append(
+            {
+                "id": m.id,
+                "name": m.name,
+                "surname": m.surname,
+                "date_of_birth": getattr(m, "date_of_birth", None),
+                "sex": getattr(m, "sex", None),
+                "status": getattr(m, "status", None),
+                "level_id": getattr(m, "level_id", None),
+                "location_id": getattr(m, "location_id", None),
+                "unpaid_months": unpaid_months,
+                "unpaid_months_list": unpaid_list,
+            }
+        )
     # prepare maps for template (value -> translation key)
     sex_map = {v: k for v, k in SEX_CHOICES}
     status_map = {v: k for v, k in MEMBER_STATUS_CHOICES}
     # also build level id -> name mapping so templates can call translation keys like "level.<name>"
     levels_all = db.query(Level).all()
-    level_map = {l.id: l.name for l in levels_all}
+    level_map = {lvl.id: lvl.name for lvl in levels_all}
     # fetch locations and build id->name mapping for display and filtering
     locations_all = db.query(Location).order_by(Location.name.asc()).all()
     location_map = {loc.id: loc.name for loc in locations_all}
@@ -337,6 +403,205 @@ async def members_delete(
     db.delete(m)
     db.commit()
     return RedirectResponse(url="/members", status_code=302)
+
+
+@router.get("/members/{member_id}/payments", response_class=HTMLResponse)
+async def member_payments_page(
+    request: Request,
+    member_id: int,
+    _: Callable[[str, Any], str] = Depends(i18n_dependency),
+    db: Session = Depends(get_db),
+):
+    """Show a member's payments and a form to add a new payment."""
+    m = db.query(Member).filter(Member.id == member_id).first()
+    if not m:
+        return RedirectResponse(url="/members", status_code=302)
+    prices = db.query(PaymentPrice).order_by(PaymentPrice.amount.asc()).all()
+    payments = (
+        db.query(Payment)
+        .filter(Payment.member_id == member_id)
+        .order_by(Payment.period_year.desc(), Payment.period_month.desc())
+        .all()
+    )
+    now = datetime.now()
+    return templates.TemplateResponse(
+        "payments.html",
+        {
+            "request": request,
+            "member": m,
+            "payments": payments,
+            "prices": prices,
+            "default_month": now.month,
+            "default_year": now.year,
+            "_": _,
+        },
+    )
+
+
+@router.post("/members/{member_id}/payments/create")
+async def member_payments_create(
+    request: Request,
+    member_id: int,
+    price_id: int = Form(...),
+    period_month: int = Form(...),
+    period_year: int = Form(...),
+    notes: str | None = Form(None),
+    _: Callable[[str, Any], str] = Depends(i18n_dependency),
+    db: Session = Depends(get_db),
+):
+    """Create a payment using a PaymentPrice; if a payment for the same member+period exists, update it (prevent duplicate)."""
+    m = db.query(Member).filter(Member.id == member_id).first()
+    if not m:
+        return RedirectResponse(url="/members", status_code=302)
+
+    price_obj = db.query(PaymentPrice).filter(PaymentPrice.id == price_id).first()
+    if not price_obj:
+        # Missing/invalid price -> return with error flag
+        return RedirectResponse(
+            url=f"/members/{member_id}/payments?error=price_missing", status_code=302
+        )
+
+    # Check for existing payment for same member+period
+    existing = (
+        db.query(Payment)
+        .filter(
+            Payment.member_id == member_id,
+            Payment.period_year == period_year,
+            Payment.period_month == period_month,
+        )
+        .first()
+    )
+    if existing:
+        # Reject duplicate creation — don't overwrite existing payment
+        return RedirectResponse(
+            url=f"/members/{member_id}/payments?error=duplicate", status_code=302
+        )
+
+    # Create new payment
+    p = Payment(
+        member_id=member_id,
+        price_id=price_obj.id,
+        amount=float(price_obj.amount),
+        period_month=period_month,
+        period_year=period_year,
+        notes=notes,
+    )
+    db.add(p)
+    db.commit()
+    return RedirectResponse(
+        url=f"/members/{member_id}/payments?created=1", status_code=302
+    )
+
+
+@router.get(
+    "/members/{member_id}/payments/{payment_id}/edit", response_class=HTMLResponse
+)
+async def member_payment_edit_get(
+    request: Request,
+    member_id: int,
+    payment_id: int,
+    _: Callable[[str, Any], str] = Depends(i18n_dependency),
+    db: Session = Depends(get_db),
+):
+    m = db.query(Member).filter(Member.id == member_id).first()
+    if not m:
+        return RedirectResponse(url="/members", status_code=302)
+    payment = (
+        db.query(Payment)
+        .filter(Payment.id == payment_id, Payment.member_id == member_id)
+        .first()
+    )
+    if not payment:
+        return RedirectResponse(url=f"/members/{member_id}/payments", status_code=302)
+    prices = db.query(PaymentPrice).order_by(PaymentPrice.amount.asc()).all()
+    return templates.TemplateResponse(
+        "payment_form.html",
+        {
+            "request": request,
+            "member": m,
+            "payment": payment,
+            "prices": prices,
+            "action": f"/members/{member_id}/payments/{payment_id}/edit",
+            "_": _,
+        },
+    )
+
+
+@router.post("/members/{member_id}/payments/{payment_id}/edit")
+async def member_payment_edit_post(
+    request: Request,
+    member_id: int,
+    payment_id: int,
+    price_id: int = Form(...),
+    period_month: int = Form(...),
+    period_year: int = Form(...),
+    notes: str | None = Form(None),
+    _: Callable[[str, Any], str] = Depends(i18n_dependency),
+    db: Session = Depends(get_db),
+):
+    """Edit a payment. Reject if the new period conflicts with another payment for the same member."""
+    payment = (
+        db.query(Payment)
+        .filter(Payment.id == payment_id, Payment.member_id == member_id)
+        .first()
+    )
+    if not payment:
+        return RedirectResponse(url=f"/members/{member_id}/payments", status_code=302)
+
+    # Check for conflict: another payment for same member+period
+    conflict = (
+        db.query(Payment)
+        .filter(
+            Payment.member_id == member_id,
+            Payment.period_year == period_year,
+            Payment.period_month == period_month,
+            Payment.id != payment_id,
+        )
+        .first()
+    )
+    if conflict:
+        # Reject edit because it would create a duplicate period
+        return RedirectResponse(
+            url=f"/members/{member_id}/payments?error=duplicate", status_code=302
+        )
+
+    price_obj = db.query(PaymentPrice).filter(PaymentPrice.id == price_id).first()
+    if not price_obj:
+        return RedirectResponse(
+            url=f"/members/{member_id}/payments?error=price_missing", status_code=302
+        )
+
+    payment.price_id = price_obj.id
+    payment.amount = float(price_obj.amount)
+    payment.period_month = period_month
+    payment.period_year = period_year
+    payment.notes = notes
+    payment.payment_date = datetime.utcnow()
+    db.add(payment)
+    db.commit()
+    return RedirectResponse(
+        url=f"/members/{member_id}/payments?updated=1", status_code=302
+    )
+
+
+@router.post("/members/{member_id}/payments/{payment_id}/delete")
+async def member_payment_delete(
+    request: Request,
+    member_id: int,
+    payment_id: int,
+    _: Callable[[str, Any], str] = Depends(i18n_dependency),
+    db: Session = Depends(get_db),
+):
+    payment = (
+        db.query(Payment)
+        .filter(Payment.id == payment_id, Payment.member_id == member_id)
+        .first()
+    )
+    if not payment:
+        return RedirectResponse(url=f"/members/{member_id}/payments", status_code=302)
+    db.delete(payment)
+    db.commit()
+    return RedirectResponse(url=f"/members/{member_id}/payments", status_code=302)
 
 
 # JSON API endpoints for members

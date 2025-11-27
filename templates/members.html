@@ -150,4 +150,84 @@
 })();
 </script>
 
+<!-- Modal container for unpaid months popup -->
+<div id="unpaid-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black bg-opacity-50">
+  <div class="bg-white rounded shadow-lg max-w-md w-full mx-4">
+    <div class="flex items-center justify-between px-4 py-2 border-b">
+      <h3 class="text-lg font-medium">{{ _('members.unpaid_details') if _('members.unpaid_details') else 'Unpaid months' }}</h3>
+      <button id="unpaid-modal-close" class="text-gray-600 hover:text-gray-800">&times;</button>
+    </div>
+    <div class="p-4" id="unpaid-modal-body">
+      <!-- populated dynamically -->
+    </div>
+    <div class="px-4 py-2 border-t text-right">
+      <button id="unpaid-modal-close-2" class="px-3 py-1 bg-gray-100 rounded">{{ _('close') if _('close') else 'Close' }}</button>
+    </div>
+  </div>
+</div>
+
+<!-- Script: handle clicking unpaid badges and show modal. Uses event delegation so it works after HTMX swaps -->
+<script>
+(function(){
+  // Helper to parse JSON stored in data-unpaid (it's a simple JSON array of strings)
+  function safeParseJSON(s){
+    try { return JSON.parse(s); } catch(e) { return null; }
+  }
+
+  function openModal(items){
+    var modal = document.getElementById('unpaid-modal');
+    var body = document.getElementById('unpaid-modal-body');
+    body.innerHTML = '';
+    if (!items || items.length === 0) {
+      body.textContent = '{{ _('members.no_unpaid') if _('members.no_unpaid') else 'No unpaid months' }}';
+    } else {
+      var ul = document.createElement('ul');
+      ul.className = 'list-disc pl-5 space-y-1 text-sm';
+      items.forEach(function(it){
+        var li = document.createElement('li');
+        li.textContent = it;
+        ul.appendChild(li);
+      });
+      body.appendChild(ul);
+    }
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+  }
+  function closeModal(){
+    var modal = document.getElementById('unpaid-modal');
+    modal.classList.remove('flex');
+    modal.classList.add('hidden');
+  }
+
+  document.body.addEventListener('click', function(e){
+    var target = e.target;
+    // Walk up to find element with 'data-unpaid-list'
+    while(target && target !== document.body){
+      if (target.dataset && target.dataset.unpaidList) {
+        e.preventDefault();
+        var items = safeParseJSON(target.dataset.unpaidList);
+        openModal(items);
+        return;
+      }
+      target = target.parentElement;
+    }
+  });
+
+  // Close buttons
+  var close1 = document.getElementById('unpaid-modal-close');
+  var close2 = document.getElementById('unpaid-modal-close-2');
+  if (close1) close1.addEventListener('click', closeModal);
+  if (close2) close2.addEventListener('click', closeModal);
+
+  // Close on ESC
+  document.addEventListener('keydown', function(e){ if (e.key === 'Escape') closeModal(); });
+
+  // Also close when clicking on backdrop (but not when clicking the dialog)
+  var modal = document.getElementById('unpaid-modal');
+  if (modal) {
+    modal.addEventListener('click', function(e){ if (e.target === modal) closeModal(); });
+  }
+})();
+</script>
+
 {% endblock %}

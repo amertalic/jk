@@ -1,7 +1,7 @@
 {
   "nav.login": { "en": "Login", "bs": "Prijava" },
   "nav.logout": { "en": "Logout", "bs": "Odjava" },
-  "nav.app_name": { "en": "My App", "bs": "Moja Aplikacija" },
+  "nav.app_name": { "en": "JK Olimp", "bs": "JK Olimp" },
   "nav.settings": { "en": "Settings", "bs": "Postavke" },
   "nav.open_user_menu": { "en": "Open user menu", "bs": "Otvori izbornik" },
   "nav.home": { "en": "Home", "bs": "Početna" },
@@ -62,6 +62,8 @@
   "members.clear_filters": { "en": "Clear filters", "bs": "Obriši filtere" },
   "members.filter": { "en": "Filter", "bs": "Filtriraj" },
   "members.search_placeholder": { "en": "Search by name or surname", "bs": "Pretraži po imenu ili prezimenu" },
+  "members.unpaid": { "en": "Unpaid", "bs": "Neplaćeno" },
+  "members.unpaid_details": {"en": "Unpaid month", "bs": "Neplaćeni mjeseci" },
 
   "sex.male": { "en": "Male", "bs": "Muško" },
   "sex.female": { "en": "Female", "bs": "Žensko" },
@@ -79,5 +81,33 @@
   "level.brown": { "en": "Brown", "bs": "Smeđi" },
   "level.black": { "en": "Black", "bs": "Crni" },
   "level.red-white": { "en": "Red-White", "bs": "Crveno-bijeli" },
-  "level.red": { "en": "Red", "bs": "Crveni" }
+  "level.red": { "en": "Red", "bs": "Crveni" },
+
+  "payments.title": { "en": "Payments", "bs": "Uplate" },
+  "payments.for_member": { "en": "Payments for", "bs": "Uplate za" },
+  "payments.add": { "en": "Add payment", "bs": "Dodaj uplatu" },
+  "payments.month": { "en": "Month", "bs": "Mjesec" },
+  "payments.year": { "en": "Year", "bs": "Godina" },
+  "payments.amount": { "en": "Amount", "bs": "Iznos" },
+  "payments.price": { "en": "Price", "bs": "Cijena" },
+  "payments.notes": { "en": "Notes", "bs": "Bilješke" },
+  "payments.save": { "en": "Save", "bs": "Sačuvaj" },
+  "payments.cancel": { "en": "Cancel", "bs": "Otkaži" },
+  "payments.history": { "en": "Payment history", "bs": "Historija uplata" },
+  "payments.period": { "en": "Period", "bs": "Period" },
+  "payments.actions": { "en": "Actions", "bs": "Akcije" },
+  "payments.edit": { "en": "Edit", "bs": "Uredi" },
+  "payments.delete": { "en": "Delete", "bs": "Obriši" },
+  "payments.confirm_delete": { "en": "Are you sure you want to delete this payment?", "bs": "Da li ste sigurni da želite obrisati ovu uplatu?" },
+  "payments.none": { "en": "No payments found", "bs": "Nema uplata" },
+  "payments.edit_title": { "en": "Edit payment", "bs": "Uredi uplatu" },
+  "payments.created": { "en": "Payment created", "bs": "Uplata dodana" },
+  "payments.updated": { "en": "Payment updated", "bs": "Uplata ažurirana" },
+  "payments.error_duplicate": { "en": "A payment for this month already exists", "bs": "Uplata za ovaj mjesec već postoji" },
+  "payments.error_price_missing": { "en": "Selected price not found", "bs": "Odabrana cijena nije pronađena" },
+
+  "feedback.created": { "en": "Created successfully", "bs": "Uspješno kreirano" },
+  "feedback.updated": { "en": "Updated successfully", "bs": "Uspješno ažurirano" },
+  "feedback.deleted": { "en": "Deleted successfully", "bs": "Uspješno obrisano" },
+  "feedback.error": { "en": "An error occurred", "bs": "Došlo je do greške" }
 }
