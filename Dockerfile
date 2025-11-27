@@ -39,7 +39,7 @@ COPY . .
 RUN rm -f .env || true
 
 # Default port (Coolify will inject PORT or you can set it via env vars). Expose for documentation.
-ENV PORT=3001
+ENV PORT=3003
 # For a very small app, default to a single worker to conserve memory.
 # You can override these values in Coolify per-deployment if you need more concurrency.
 ENV GUNICORN_WORKERS=1
