@@ -135,8 +135,8 @@ async def login_post(
             "iat": now,
         }
         token = jwt.encode(payload, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
-        # For browser-based flow, set token in cookie and redirect to home
-        response = RedirectResponse(url="/", status_code=302)
+        # For browser-based flow, set token in cookie and redirect to members page
+        response = RedirectResponse(url="/members", status_code=302)
         response.set_cookie("access_token", token, httponly=True)
         return response
     finally:

@@ -1,16 +1,15 @@
 <header class="bg-white border-b">
   <div class="w-full px-4 py-3 flex flex-wrap items-center justify-between">
     <div class="flex items-center space-x-4">
-      <a href="/" class="flex items-center space-x-2">
+      <a href="/members" class="flex items-center space-x-2">
         <img src="/static/logo.webp" alt="logo" class="h-8 w-8" />
         <span class="text-xl font-semibold">{{ _('nav.app_name') }}</span>
       </a>
 
       <!-- Desktop nav (hidden on small screens) - visibility handled by .nav-desktop fallback and Tailwind's sm: utilities -->
       <nav id="main-nav" class="sm:flex nav-desktop space-x-3">
-        <a href="/" class="px-3 py-2 text-sm rounded hover:bg-gray-100">{{ _('nav.home') }}</a>
-        <a href="/settings" class="px-3 py-2 text-sm rounded hover:bg-gray-100">{{ _('nav.settings') }}</a>
         <a href="/members" class="px-3 py-2 text-sm rounded hover:bg-gray-100">{{ _('nav.members') }}</a>
+        <a href="/settings" class="px-3 py-2 text-sm rounded hover:bg-gray-100">{{ _('nav.settings') }}</a>
       </nav>
 
     </div>
@@ -52,9 +51,8 @@
   <!-- Mobile nav (hidden by default) -->
   <div id="mobile-nav" class="hidden sm:hidden bg-white border-t">
     <div class="px-4 py-2 space-y-1">
-      <a href="/" class="block px-3 py-2 rounded">{{ _('nav.home') }}</a>
-      <a href="/settings" class="block px-3 py-2 rounded">{{ _('nav.settings') }}</a>
       <a href="/members" class="block px-3 py-2 rounded">{{ _('nav.members') }}</a>
+      <a href="/settings" class="block px-3 py-2 rounded">{{ _('nav.settings') }}</a>
       {% if request.state.user %}
         <div class="border-t mt-2 pt-2">
           <div class="px-3 py-2">{{ request.state.user.username }}</div>

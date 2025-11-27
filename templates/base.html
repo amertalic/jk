@@ -44,7 +44,9 @@
 
   <a class="skip-link sr-only focus:not-sr-only" href="#main">Skip to content</a>
 
-  {% include 'header.html' %}
+  {% if request is defined and request.url.path != '/login' %}
+    {% include 'header.html' %}
+  {% endif %}
 
   <!-- Live region for flash/alerts -->
   <div id="flash-messages" aria-live="polite" class="sr-only" role="status">{% block flash %}{% endblock %}</div>
