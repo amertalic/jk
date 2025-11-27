@@ -46,7 +46,7 @@
         <select name="level" class="border rounded px-2 py-2 text-sm w-full">
           <option value="">{{ _('members.levels') if _('members.levels') else 'All levels' }}</option>
           {% for l in levels %}
-            <option value="{{ l.id }}" {% if current_level and current_level == l.id %}selected{% endif %}>{{ _('level.' ~ l.name) }}</option>
+            <option value="{{ l.id }}" {% if current_level and current_level == l.id %}selected{% endif %}>{{ _('color.' ~ l.name) }}</option>
           {% endfor %}
         </select>
 
@@ -88,7 +88,7 @@
       {% set active = active + [ _('members.name') ~ ': ' ~ current_q ] %}
     {% endif %}
     {% if current_level %}
-      {% set active = active + [ _('members.levels') ~ ': ' ~ _('level.' ~ level_map[current_level]) ] %}
+      {% set active = active + [ _('members.levels') ~ ': ' ~ _('color.' ~ level_map[current_level]) ] %}
     {% endif %}
     {% if current_status %}
       {% set active = active + [ _('members.status') ~ ': ' ~ _(status_map[current_status]) ] %}

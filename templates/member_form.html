@@ -59,9 +59,9 @@
         <option value="">--</option>
         {% for l in levels %}
           {% if member and member.level_id == l.id %}
-            <option value="{{ l.id }}" selected>{{ _('level.' ~ l.name) }}</option>
+            <option value="{{ l.id }}" selected>{{ _('color.' ~ l.name) }}</option>
           {% else %}
-            <option value="{{ l.id }}">{{ _('level.' ~ l.name) }}</option>
+            <option value="{{ l.id }}">{{ _('color.' ~ l.name) }}</option>
           {% endif %}
         {% endfor %}
       </select>

@@ -41,6 +41,11 @@ def upgrade() -> None:
     INSERT INTO levels (id, name, rank) VALUES (7, 'black', 7);
     INSERT INTO levels (id, name, rank) VALUES (8, 'red-white', 8);
     INSERT INTO levels (id, name, rank) VALUES (9, 'red', 9);
+    INSERT INTO levels (id, name, rank) VALUES (10, 'white-yellow', 1.5);
+    INSERT INTO levels (id, name, rank) VALUES (11, 'yellow-orange', 2.5);
+    INSERT INTO levels (id, name, rank) VALUES (12, 'orange-green', 3.5);
+    INSERT INTO levels (id, name, rank) VALUES (13, 'green-blue', 4.5);
+    INSERT INTO levels (id, name, rank) VALUES (14, 'blue-brown', 5.5);
     """)
     op.create_table(
         "locations",

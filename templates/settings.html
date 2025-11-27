@@ -2,61 +2,333 @@
 
 {% block content %}
 <div class="container mx-auto p-4">
-    <h2 class="text-2xl font-semibold mb-4">{{ _('settings.title') }}</h2>
+  <h2 class="text-2xl font-semibold mb-4">{{ _('settings.title') }}</h2>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div class="bg-white rounded shadow p-4">
-            <h3 class="text-lg font-medium mb-2">{{ _('settings.account') }}</h3>
-            <div class="mb-4">
-                <label class="block text-sm text-gray-600">{{ _('settings.username') }}</label>
-                <div class="p-2 bg-gray-50 rounded">{{ request.state.user.username if request.state.user else '-' }}</div>
-            </div>
-            <div class="mb-4">
-                <label class="block text-sm text-gray-600">{{ _('settings.email') }}</label>
-                <div class="p-2 bg-gray-50 rounded">{{ request.state.user.email if request.state.user and request.state.user.email is defined else '-' }}</div>
-            </div>
-
-            <form action="/settings/update-email" method="post" class="mt-4">
-                <h4 class="text-sm font-semibold mb-2">{{ _('settings.update_email') }}</h4>
-                <label class="block text-sm text-gray-700">{{ _('settings.new_email') }}</label>
-                <input type="email" name="email" required class="w-full p-2 border rounded mt-1 mb-2" />
-                <label class="block text-sm text-gray-700">{{ _('settings.current_password') }}</label>
-                <input type="password" name="current_password" required class="w-full p-2 border rounded mt-1 mb-2" />
-                <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded">{{ _('settings.save_email') }}</button>
-            </form>
+  <!-- Top row: Account & Security -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+    <!-- Account card -->
+    <div class="bg-white rounded-lg shadow p-4">
+      <h3 class="text-lg font-medium mb-3">{{ _('settings.account') }}</h3>
+      <div class="space-y-3">
+        <div>
+          <label class="block text-sm text-gray-600">{{ _('settings.username') }}</label>
+          <div class="p-2 bg-gray-50 rounded">{{ request.state.user.username if request.state.user else '-' }}</div>
         </div>
-
-        <div class="bg-white rounded shadow p-4">
-            <h3 class="text-lg font-medium mb-2">{{ _('settings.security') }}</h3>
-            <form action="/settings/change-password" method="post">
-                <label class="block text-sm text-gray-700">{{ _('settings.current_password') }}</label>
-                <input type="password" name="current_password" required class="w-full p-2 border rounded mt-1 mb-2" />
-
-                <label class="block text-sm text-gray-700">{{ _('settings.new_password') }}</label>
-                <input type="password" name="new_password" required class="w-full p-2 border rounded mt-1 mb-2" />
-
-                <label class="block text-sm text-gray-700">{{ _('settings.confirm_password') }}</label>
-                <input type="password" name="confirm_password" required class="w-full p-2 border rounded mt-1 mb-2" />
-
-                <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded">{{ _('settings.change_password') }}</button>
-            </form>
+        <div>
+          <label class="block text-sm text-gray-600">{{ _('settings.email') }}</label>
+          <div class="p-2 bg-gray-50 rounded">{{ request.state.user.email if request.state.user and request.state.user.email is defined else '-' }}</div>
         </div>
+      </div>
+
+      <form action="/settings/update-email" method="post" class="mt-4 space-y-2">
+        <label class="block text-sm text-gray-700">{{ _('settings.new_email') }}</label>
+        <input type="email" name="email" required class="w-full p-2 border rounded mt-1" />
+        <label class="block text-sm text-gray-700">{{ _('settings.current_password') }}</label>
+        <input type="password" name="current_password" required class="w-full p-2 border rounded mt-1" />
+        <div class="mt-3">
+          <button type="submit" class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded">{{ _('settings.save_email') }}</button>
+        </div>
+      </form>
     </div>
 
-    <div class="mt-6">
-        <a href="/members" class="inline-block px-4 py-2 bg-gray-100 text-gray-800 rounded">{{ _('settings.back') }}</a>
+    <!-- Security card -->
+    <div class="bg-white rounded-lg shadow p-4">
+      <h3 class="text-lg font-medium mb-3">{{ _('settings.security') }}</h3>
+      <form action="/settings/change-password" method="post" class="space-y-2">
+        <div>
+          <label class="block text-sm text-gray-700">{{ _('settings.current_password') }}</label>
+          <input type="password" name="current_password" required class="w-full p-2 border rounded mt-1" />
+        </div>
+        <div>
+          <label class="block text-sm text-gray-700">{{ _('settings.new_password') }}</label>
+          <input type="password" name="new_password" required class="w-full p-2 border rounded mt-1" />
+        </div>
+        <div>
+          <label class="block text-sm text-gray-700">{{ _('settings.confirm_password') }}</label>
+          <input type="password" name="confirm_password" required class="w-full p-2 border rounded mt-1" />
+        </div>
+        <div class="mt-3">
+          <button type="submit" class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded">{{ _('settings.change_password') }}</button>
+        </div>
+      </form>
     </div>
+  </div>
+
+  <!-- Management cards: Locations, Levels, Prices -->
+  <div class="grid grid-cols-1 gap-6">
+
+    <!-- Locations card -->
+    <div class="bg-white rounded-lg shadow p-4">
+      <h3 class="text-lg font-medium mb-3">{{ _('settings.locations') }}</h3>
+
+      <form action="/settings/locations/create" method="post" class="mb-3 flex flex-col gap-2">
+        <input type="text" name="name" placeholder="{{ _('settings.location_name') }}" class="w-full md:w-80 p-2 border rounded text-sm" />
+        <div>
+          <button type="submit" class="px-3 py-1 bg-green-600 text-white rounded-md text-sm">{{ _('settings.add') }}</button>
+        </div>
+      </form>
+
+      <!-- Mobile: cards (visible on small screens) -->
+      <div class="space-y-3 md:hidden">
+        {% for loc in locations %}
+        <div class="bg-gray-50 rounded p-3 shadow-sm">
+          <form id="loc-form-mobile-{{ loc.id }}" action="/settings/locations/{{ loc.id }}/edit" method="post" class="flex flex-col gap-2">
+            <input id="loc-name-mobile-{{ loc.id }}" type="text" name="name" value="{{ loc.name }}" class="w-full p-2 border rounded text-sm" />
+            <div class="flex gap-2">
+              <button type="button" onclick="submitForm('loc-form-mobile-{{ loc.id }}')" class="px-3 py-1 bg-blue-600 text-white rounded-md text-sm">{{ _('settings.save') }}</button>
+              <form action="/settings/locations/{{ loc.id }}/delete" method="post" class="inline" onsubmit="return confirm('{{ _('settings.confirm_delete') }}');">
+                <button type="submit" class="px-3 py-1 bg-red-600 text-white rounded-md text-sm">{{ _('settings.delete') }}</button>
+              </form>
+            </div>
+          </form>
+        </div>
+        {% else %}
+        <div class="text-sm text-gray-500">{{ _('settings.no_locations') }}</div>
+        {% endfor %}
+      </div>
+
+      <!-- Desktop: table (hidden on small screens) -->
+      <div class="hidden md:block overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ _('settings.location_name') }}</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ _('settings.actions') }}</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            {% for loc in locations %}
+            <tr>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <form id="loc-form-{{ loc.id }}" action="/settings/locations/{{ loc.id }}/edit" method="post" class="flex gap-2 mt-2">
+                  <input id="loc-name-{{ loc.id }}" type="text" name="name" value="{{ loc.name }}" class="w-full md:w-64 p-1 border rounded text-sm min-w-0" />
+                </form>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                <div class="flex gap-2">
+                  <button type="button" onclick="submitForm('loc-form-{{ loc.id }}')" class="px-3 py-1 bg-blue-600 text-white rounded-md text-sm">{{ _('settings.save') }}</button>
+                  <form action="/settings/locations/{{ loc.id }}/delete" method="post" class="inline" onsubmit="return confirm('{{ _('settings.confirm_delete') }}');">
+                    <button type="submit" class="px-3 py-1 bg-red-600 text-white rounded-md text-sm">{{ _('settings.delete') }}</button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+            {% else %}
+            <tr>
+              <td colspan="2" class="px-6 py-4 text-sm text-gray-500 text-center">{{ _('settings.no_locations') }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Prices card -->
+    <div class="bg-white rounded-lg shadow p-4">
+      <h3 class="text-lg font-medium mb-3">{{ _('settings.prices') }}</h3>
+
+      <form action="/settings/prices/create" method="post" class="mb-3 flex flex-col gap-2">
+        <div class="flex gap-2 w-full">
+          <input type="text" name="amount" placeholder="{{ _('settings.price_amount') }}" class="w-24 md:w-24 p-2 border rounded text-sm" />
+          <input type="text" name="description" placeholder="{{ _('settings.price_description') }}" class="w-full p-2 border rounded text-sm" />
+        </div>
+        <div>
+          <button type="submit" class="px-3 py-1 bg-green-600 text-white rounded-md text-sm">{{ _('settings.add') }}</button>
+        </div>
+      </form>
+
+      <!-- Mobile cards -->
+      <div class="space-y-3 md:hidden">
+        {% for p in prices %}
+        <div class="bg-gray-50 rounded p-3 shadow-sm">
+          <form id="price-form-mobile-{{ p.id }}" action="/settings/prices/{{ p.id }}/edit" method="post" class="flex flex-col gap-2">
+            <div class="flex gap-2">
+              <input id="price-amount-mobile-{{ p.id }}" type="text" name="amount" value="{{ p.amount }}" class="w-28 p-2 border rounded text-sm" />
+            </div>
+            <input id="price-desc-mobile-{{ p.id }}" type="text" name="description" value="{{ p.description }}" class="w-full p-2 border rounded text-sm" />
+            <div class="flex gap-2">
+              <button type="button" onclick="submitForm('price-form-mobile-{{ p.id }}')" class="px-3 py-1 bg-blue-600 text-white rounded-md text-sm">{{ _('settings.save') }}</button>
+              <form action="/settings/prices/{{ p.id }}/delete" method="post" class="inline" onsubmit="return confirm('{{ _('settings.confirm_delete') }}');">
+                <button type="submit" class="px-3 py-1 bg-red-600 text-white rounded-md text-sm">{{ _('settings.delete') }}</button>
+              </form>
+            </div>
+          </form>
+        </div>
+        {% else %}
+        <div class="text-sm text-gray-500">{{ _('settings.no_prices') }}</div>
+        {% endfor %}
+      </div>
+
+      <!-- Desktop table -->
+      <div class="hidden md:block overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ _('settings.price_amount') }}</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ _('settings.price_description') }}</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ _('settings.actions') }}</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            {% for p in prices %}
+            <tr>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <form id="price-form-{{ p.id }}" action="/settings/prices/{{ p.id }}/edit" method="post" class="flex gap-2 mt-2">
+                  <input id="price-amount-{{ p.id }}" type="text" name="amount" value="{{ p.amount }}" class="w-full md:w-20 p-1 border rounded text-sm min-w-0" />
+                  <input id="price-desc-{{ p.id }}" type="text" name="description" value="{{ p.description }}" class="w-full md:w-48 p-1 border rounded text-sm min-w-0" />
+                </form>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                <div class="flex gap-2">
+                  <button type="button" onclick="submitForm('price-form-{{ p.id }}')" class="px-3 py-1 bg-blue-600 text-white rounded-md text-sm">{{ _('settings.save') }}</button>
+                  <form action="/settings/prices/{{ p.id }}/delete" method="post" class="inline" onsubmit="return confirm('{{ _('settings.confirm_delete') }}');">
+                    <button type="submit" class="px-3 py-1 bg-red-600 text-white rounded-md text-sm">{{ _('settings.delete') }}</button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+            {% else %}
+            <tr>
+              <td colspan="3" class="px-6 py-4 text-sm text-gray-500 text-center">
+                {{ _('settings.no_prices') }}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Levels card -->
+    <div class="bg-white rounded-lg shadow p-4">
+      <h3 class="text-lg font-medium mb-3">{{ _('settings.levels') }}</h3>
+
+      <form action="/settings/levels/create" method="post" class="mb-3 flex flex-col gap-2">
+        <div class="flex gap-2 w-full">
+          <input type="text" name="name" placeholder="{{ _('settings.level_name') }}" class="w-full md:w-64 p-2 border rounded text-sm" />
+          <input type="number" name="rank" placeholder="{{ _('settings.level_rank') }}" class="w-24 p-2 border rounded text-sm" />
+        </div>
+        <div>
+          <button type="submit" class="px-3 py-1 bg-green-600 text-white rounded-md text-sm">{{ _('settings.add') }}</button>
+        </div>
+      </form>
+
+      <!-- Mobile cards -->
+      <div class="space-y-3 md:hidden">
+        {% for lvl in levels %}
+        <div class="bg-gray-50 rounded p-3 shadow-sm">
+          <form id="lvl-form-mobile-{{ lvl.id }}" action="/settings/levels/{{ lvl.id }}/edit" method="post" class="flex flex-col gap-2">
+            <input id="lvl-name-mobile-{{ lvl.id }}" type="text" name="name" value="{{ lvl.name }}" class="w-full p-2 border rounded text-sm" />
+            <input id="lvl-rank-mobile-{{ lvl.id }}" type="number" name="rank" value="{{ lvl.rank }}" class="w-24 p-2 border rounded text-sm" />
+            <div class="flex gap-2">
+              <button type="button" onclick="submitForm('lvl-form-mobile-{{ lvl.id }}')" class="px-3 py-1 bg-blue-600 text-white rounded-md text-sm">{{ _('settings.save') }}</button>
+              <form action="/settings/levels/{{ lvl.id }}/delete" method="post" class="inline" onsubmit="return confirm('{{ _('settings.confirm_delete') }}');">
+                <button type="submit" class="px-3 py-1 bg-red-600 text-white rounded-md text-sm">{{ _('settings.delete') }}</button>
+              </form>
+            </div>
+          </form>
+        </div>
+        {% else %}
+        <div class="text-sm text-gray-500">{{ _('settings.no_levels') }}</div>
+        {% endfor %}
+      </div>
+
+      <!-- Desktop table -->
+      <div class="hidden md:block overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ _('settings.level_name') }}</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ _('settings.level_rank') }}</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ _('settings.actions') }}</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            {% for lvl in levels %}
+            <tr>
+               <td class="px-6 py-4 whitespace-nowrap">
+                <form id="lvl-form-{{ lvl.id }}" action="/settings/levels/{{ lvl.id }}/edit" method="post" class="flex gap-2 mt-2">
+                  <input id="lvl-name-{{ lvl.id }}" type="text" name="name" value="{{ lvl.name }}" class="w-full md:w-48 p-1 border rounded text-sm min-w-0" />
+                  <input id="lvl-rank-{{ lvl.id }}" type="number" name="rank" value="{{ lvl.rank }}" class="w-24 p-1 border rounded text-sm min-w-0" />
+                </form>
+               </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                 <div class="flex gap-2">
+                   <button type="button" onclick="submitForm('lvl-form-{{ lvl.id }}')" class="px-3 py-1 bg-blue-600 text-white rounded-md text-sm">{{ _('settings.save') }}</button>
+                   <form action="/settings/levels/{{ lvl.id }}/delete" method="post" class="inline" onsubmit="return confirm('{{ _('settings.confirm_delete') }}');">
+                     <button type="submit" class="px-3 py-1 bg-red-600 text-white rounded-md text-sm">{{ _('settings.delete') }}</button>
+                   </form>
+                 </div>
+               </td>
+             </tr>
+            {% else %}
+            <tr>
+              <td colspan="3" class="px-6 py-4 text-sm text-gray-500 text-center">
+                {{ _('settings.no_levels') }}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="mt-6">
+    <a href="/members" class="inline-block px-4 py-2 bg-gray-100 text-gray-800 rounded">{{ _('settings.back') }}</a>
+  </div>
 </div>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // If server provided message or error in template context, show notification using the shared popup
-        {% if message %}
-            try { showNotification("{{ message|e }}", 3000, 'success'); } catch(e){}
-        {% endif %}
-        {% if error %}
-            try { showNotification("{{ error|e }}", 5000, 'error'); } catch(e){}
-        {% endif %}
-    });
+  document.addEventListener('DOMContentLoaded', function() {
+    {% if message %}
+      try { showNotification("{{ message|e }}", 3000, 'success'); } catch(e){}
+    {% endif %}
+    {% if error %}
+      try { showNotification("{{ error|e }}", 5000, 'error'); } catch(e){}
+    {% endif %}
+  });
+
+  // Localized messages
+  const MSG_UPDATED = "{{ _('feedback.updated') }}";
+  const MSG_ERROR = "{{ _('feedback.error') }}";
+
+  // Helper to submit a form by id using AJAX (fetch)
+  async function submitForm(formId) {
+    var f = document.getElementById(formId);
+    if (!f) return;
+    try {
+      // show pending state on any nearby save button
+      const action = f.getAttribute('action') || window.location.href;
+      const formData = new FormData(f);
+
+      const resp = await fetch(action, {
+        method: 'POST',
+        body: formData,
+        credentials: 'same-origin',
+        headers: {
+          'X-Requested-With': 'XMLHttpRequest'
+        }
+      });
+
+      if (resp.ok) {
+        try { showNotification(MSG_UPDATED, 2500, 'success'); } catch(e){}
+        // Optionally update UI or leave inputs as-is (they already contain current values)
+      } else {
+        let txt = MSG_ERROR;
+        try { txt = await resp.text(); } catch(e){}
+        try { showNotification(txt || MSG_ERROR, 4000, 'error'); } catch(e){}
+      }
+    } catch (err) {
+      try { showNotification(MSG_ERROR, 4000, 'error'); } catch(e){}
+      console.error('AJAX submit failed', err);
+    }
+  }
+
+   // Helper to focus and select an input by id
+   function focusInput(inputId) {
+     var el = document.getElementById(inputId);
+     if (el) { el.focus(); if (el.select) el.select(); }
+   }
 </script>
 {% endblock %}

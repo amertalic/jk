@@ -20,7 +20,7 @@
             </div>
           </div>
           <dl class="mt-3 text-sm grid grid-cols-2 gap-y-2 gap-x-4">
-            <div><dt class="text-gray-500 text-xs">{{ _('members.levels') }}</dt><dd class="mt-1">{{ _('level.' ~ level_map[m.level_id]) if m.level_id and level_map.get(m.level_id) else (m.level_id or '') }}</dd></div>
+            <div><dt class="text-gray-500 text-xs">{{ _('members.levels') }}</dt><dd class="mt-1">{{ _('color.' ~ level_map[m.level_id]) if m.level_id and level_map.get(m.level_id) else (m.level_id or '') }}</dd></div>
             <div><dt class="text-gray-500 text-xs">{{ _('members.locations') }}</dt><dd class="mt-1">{{ location_map[m.location_id] if m.location_id and location_map.get(m.location_id) else (m.location_id or '') }}</dd></div>
             <div><dt class="text-gray-500 text-xs">{{ _('members.sex') }}</dt><dd class="mt-1">{{ _(sex_map[m.sex]) if m.sex and sex_map.get(m.sex) else (m.sex or '') }}</dd></div>
             <div><dt class="text-gray-500 text-xs">{{ _('members.status') }}</dt><dd class="mt-1">{{ _(status_map[m.status]) if m.status and status_map.get(m.status) else (m.status or '') }}</dd></div>
@@ -55,7 +55,7 @@
                 <td class="p-3 break-words align-top">{{ m.id }}</td>
                 <td class="p-3 break-words align-top">{{ m.name }}</td>
                 <td class="p-3 break-words align-top">{{ m.surname }}</td>
-                <td class="p-3 break-words align-top">{{ _('level.' ~ level_map[m.level_id]) if m.level_id and level_map.get(m.level_id) else (m.level_id or '') }}</td>
+                <td class="p-3 break-words align-top">{{ _('color.' ~ level_map[m.level_id]) if m.level_id and level_map.get(m.level_id) else (m.level_id or '') }}</td>
                 <td class="p-3 break-words align-top">{{ location_map[m.location_id] if m.location_id and location_map.get(m.location_id) else (m.location_id or '') }}</td>
                 <td class="p-3 break-words align-top">{{ _(sex_map[m.sex]) if m.sex and sex_map.get(m.sex) else (m.sex or '') }}</td>
                 <td class="p-3 break-words align-top">{{ _(status_map[m.status]) if m.status and status_map.get(m.status) else (m.status or '') }}</td>
