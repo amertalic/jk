@@ -70,6 +70,12 @@
             <option value="{{ loc.id }}" {% if current_location and current_location == loc.id %}selected{% endif %}>{{ loc.name }}</option>
           {% endfor %}
         </select>
+
+        <select name="paid" class="border rounded px-2 py-2 text-sm w-full">
+          <option value="">{{ _('members.paid_filter') if _('members.paid_filter') else 'Paid/Unpaid' }}</option>
+          <option value="paid" {% if current_paid and current_paid == 'paid' %}selected{% endif %}>{{ _('members.paid') if _('members.paid') else 'Paid' }}</option>
+          <option value="unpaid" {% if current_paid and current_paid == 'unpaid' %}selected{% endif %}>{{ _('members.unpaid') if _('members.unpaid') else 'Unpaid' }}</option>
+        </select>
       </div>
 
     </form>
@@ -92,6 +98,9 @@
     {% endif %}
     {% if current_location %}
       {% set active = active + [ _('members.locations') ~ ': ' ~ location_map[current_location] ] %}
+    {% endif %}
+    {% if current_paid %}
+      {% set active = active + [ _('members.unpaid') ~ ': ' ~ (_('members.paid') if current_paid == 'paid' else _('members.unpaid')) ] %}
     {% endif %}
 
     {% if active %}

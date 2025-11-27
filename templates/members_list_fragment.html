@@ -105,6 +105,9 @@
       {% if current_location %}
         {% set qp = qp + [ ('location', current_location) ] %}
       {% endif %}
+      {% if current_paid %}
+        {% set qp = qp + [ ('paid', current_paid) ] %}
+      {% endif %}
 
       {% macro qs(page_to) %}
         {% set s = 'page=' ~ page_to ~ '&per_page=' ~ per_page %}

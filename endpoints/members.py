@@ -9,6 +9,29 @@ from models import Member, Level, Location, Payment, PaymentPrice
 from datetime import datetime, date
 from constants import SEX_CHOICES, MEMBER_STATUS_CHOICES
 
+# Helper: yield (year, month) tuples inclusive between start_date and end_dt.
+# Placed at module-level so it can be reused by multiple endpoints (and before it's referenced).
+def iter_months(start_date, end_dt: datetime):
+    """Yield (year, month) tuples from start_date (date/datetime) inclusive to end_dt inclusive."""
+    s = start_date if isinstance(start_date, date) else start_date.date()
+    y, m = s.year, s.month
+    end_y, end_m = end_dt.year, end_dt.month
+    while (y < end_y) or (y == end_y and m <= end_m):
+        yield (y, m)
+        # increment month
+        if m == 12:
+            y += 1
+            m = 1
+        else:
+            m += 1
+
+def format_month(y, m):
+    """Return human-friendly month like 'Nov 2025' or fallback to 'YYYY-MM'."""
+    try:
+        return datetime(y, m, 1).strftime('%b %Y')
+    except Exception:
+        return f"{y:04d}-{m:02d}"
+
 router = APIRouter()
 
 
@@ -22,6 +45,7 @@ async def members_list_page(
     status: Optional[str] = Query(None),
     sex: Optional[str] = Query(None),
     location: Optional[str] = Query(None),
+    paid: Optional[str] = Query(None),
     _: Callable[[str, Any], str] = Depends(i18n_dependency),
     db: Session = Depends(get_db),
 ):
@@ -66,13 +90,53 @@ async def members_list_page(
         term = f"%{q.strip()}%"
         query = query.filter(or_(Member.name.ilike(term), Member.surname.ilike(term)))
 
-    total = query.count()
-    # compute last page and clamp page to a valid value to avoid empty results when filters reduce total
-    last_page_calc = max(1, (total + per_page - 1) // per_page)
-    if page < 1 or page > last_page_calc:
-        page = 1
-    offset = (page - 1) * per_page
-    members = query.order_by(Member.id.asc()).offset(offset).limit(per_page).all()
+    # If paid filter is supplied, we need to compute unpaid status per member and filter in Python
+    base_ordered = query.order_by(Member.id.asc())
+    if paid is not None and paid != "":
+        # Fetch all matching members (before pagination), compute unpaid for each, then filter
+        all_members = base_ordered.all()
+        member_ids_all = [m.id for m in all_members]
+        paid_map_all: dict[int, set[tuple[int, int]]] = {}
+        if member_ids_all:
+            payments_all = (
+                db.query(Payment)
+                .filter(Payment.member_id.in_(member_ids_all))
+                .all()
+            )
+            for p in payments_all:
+                paid_map_all.setdefault(p.member_id, set()).add((p.period_year, p.period_month))
+
+        # compute unpaid months for all members
+        filtered_members = []
+        now_dt = datetime.now()
+        for m in all_members:
+            enrol = getattr(m, "date_of_enrolment", None)
+            unpaid_count = 0
+            if enrol:
+                paid_set = paid_map_all.get(m.id, set())
+                for (y, mo) in iter_months(enrol, now_dt):
+                    if (y, mo) not in paid_set:
+                        unpaid_count += 1
+            # Determine inclusion based on paid filter
+            if paid == 'paid' and unpaid_count == 0:
+                filtered_members.append(m)
+            if paid == 'unpaid' and unpaid_count > 0:
+                filtered_members.append(m)
+
+        total = len(filtered_members)
+        last_page_calc = max(1, (total + per_page - 1) // per_page)
+        if page < 1 or page > last_page_calc:
+            page = 1
+        offset = (page - 1) * per_page
+        members = filtered_members[offset : offset + per_page]
+    else:
+        total = query.count()
+        # compute last page and clamp page to a valid value to avoid empty results when filters reduce total
+        last_page_calc = max(1, (total + per_page - 1) // per_page)
+        if page < 1 or page > last_page_calc:
+            page = 1
+        offset = (page - 1) * per_page
+        members = base_ordered.offset(offset).limit(per_page).all()
 
     # Compute unpaid months since enrolment for each member shown on this page.
     member_ids = [m.id for m in members]
@@ -90,27 +154,6 @@ async def members_list_page(
         # start_date may be date or datetime; ensure date
         s = start_date if isinstance(start_date, date) else start_date.date()
         return (end_dt.year - s.year) * 12 + (end_dt.month - s.month) + 1
-
-    def iter_months(start_date, end_dt: datetime):
-        """Yield (year, month) tuples from start_date (date/datetime) inclusive to end_dt inclusive."""
-        s = start_date if isinstance(start_date, date) else start_date.date()
-        y, m = s.year, s.month
-        end_y, end_m = end_dt.year, end_dt.month
-        while (y < end_y) or (y == end_y and m <= end_m):
-            yield (y, m)
-            # increment month
-            if m == 12:
-                y += 1
-                m = 1
-            else:
-                m += 1
-
-    def format_month(y, m):
-        # Return human-friendly month like 'Nov 2025'
-        try:
-            return datetime(y, m, 1).strftime('%b %Y')
-        except Exception:
-            return f"{y:04d}-{m:02d}"
 
     now_dt = datetime.now()
 
@@ -171,6 +214,7 @@ async def members_list_page(
         "total": total,
         "last_page": last_page,
         "_": _,
+        "current_paid": paid,
         "sex_choices": SEX_CHOICES,
         "status_choices": MEMBER_STATUS_CHOICES,
         "sex_map": sex_map,
@@ -424,6 +468,27 @@ async def member_payments_page(
         .all()
     )
     now = datetime.now()
+
+    # Compute unpaid months for this member (from enrolment up to now) and build human-readable list
+    paid_set = set()
+    member_payments = db.query(Payment).filter(Payment.member_id == member_id).all()
+    for p in member_payments:
+        paid_set.add((p.period_year, p.period_month))
+
+
+    unpaid_months_list = []
+    unpaid_months = 0
+    enrol = getattr(m, 'date_of_enrolment', None)
+    if enrol:
+        try:
+            for (y, mo) in iter_months(enrol, now):
+                if (y, mo) not in paid_set:
+                    unpaid_months_list.append(format_month(y, mo))
+            unpaid_months = len(unpaid_months_list)
+        except Exception:
+            unpaid_months_list = []
+            unpaid_months = 0
+
     return templates.TemplateResponse(
         "payments.html",
         {
@@ -434,6 +499,8 @@ async def member_payments_page(
             "default_month": now.month,
             "default_year": now.year,
             "_": _,
+            "unpaid_months": unpaid_months,
+            "unpaid_months_list": unpaid_months_list,
         },
     )
 

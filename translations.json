@@ -63,6 +63,8 @@
   "members.filter": { "en": "Filter", "bs": "Filtriraj" },
   "members.search_placeholder": { "en": "Search by name or surname", "bs": "Pretraži po imenu ili prezimenu" },
   "members.unpaid": { "en": "Unpaid", "bs": "Neplaćeno" },
+  "members.paid": { "en": "Paid", "bs": "Plaćeno" },
+  "members.paid_filter": { "en": "Paid / Unpaid", "bs": "Plaćeno / Neplaćeno" },
   "members.unpaid_details": {"en": "Unpaid month", "bs": "Neplaćeni mjeseci" },
 
   "sex.male": { "en": "Male", "bs": "Muško" },
