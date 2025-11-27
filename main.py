@@ -5,6 +5,7 @@ from endpoints import auth as auth_router
 from endpoints import i18n as i18n_router
 from endpoints import settings as settings_router
 from endpoints import members as members_router
+from endpoints import public_website as public_website_router
 from contextlib import asynccontextmanager
 from settings import settings
 import jwt
@@ -130,6 +131,7 @@ app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 # Mount auth routes
 # Mount static files (for TailwindCSS and other assets)
 # i18n: load translations at startup
+app.include_router(public_website_router.router)
 app.include_router(settings_router.router)
 app.include_router(auth_router.router)
 app.include_router(i18n_router.router)

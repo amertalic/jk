@@ -2,9 +2,13 @@ from typing import Iterable
 from starlette.requests import Request
 from starlette.responses import RedirectResponse, JSONResponse
 from settings import settings
+from fastapi import HTTPException
+from database import SessionLocal
+from models import User
 
 # Default public paths (prefix matching)
 DEFAULT_PUBLIC_PATHS = [
+    "/",  # make landing page available at the root without requiring auth
     "/login",
     "/signup",
     "/api/token",
@@ -29,6 +33,13 @@ def get_public_paths() -> Iterable[str]:
 def is_public_path(path: str) -> bool:
     # Consider a path public if it matches any prefix in PUBLIC_PATHS
     for p in get_public_paths():
+        # Special-case the root "/": treat it as an exact-match only so we don't
+        # accidentally make every route public (because every path starts with "/").
+        if p == "/":
+            if path == "/":
+                return True
+            continue
+
         if p.endswith("/"):
             if path.startswith(p):
                 return True
@@ -44,7 +55,7 @@ def unauth_response(request: Request):
     """
     accept = request.headers.get("accept", "")
     # If the request explicitly asks for JSON treat as API
-    if "application/json" in accept and not "text/html" in accept:
+    if "application/json" in accept and "text/html" not in accept:
         return JSONResponse({"detail": "Authentication required"}, status_code=401)
     # For non-JSON or browser, redirect to login
     return RedirectResponse(url="/login")
@@ -84,13 +95,9 @@ def register_public_path(path: str):
 
 
 # --- Admin requirement dependency ---
-from fastapi import HTTPException, Depends
-from starlette.requests import Request as StarletteRequest
-from database import SessionLocal
-from models import User
 
 
-def require_admin(request: StarletteRequest):
+def require_admin(request: Request):
     """Dependency to require admin user. Uses settings.ADMIN_USERS (comma-separated) as primary check.
     Falls back to checking a hypothetical `is_admin` column on the shared.users table if present.
     """

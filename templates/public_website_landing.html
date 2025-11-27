@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="bs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Judo Klub Olimp - Sarajevo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#c41e3a',
+                        secondary: '#1a1a2e',
+                        accent: '#f39c12',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .fade-in-up {
+            animation: fadeInUp 1s ease;
+        }
+    </style>
+</head>
+<body class="font-sans">
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full bg-secondary/95 backdrop-blur-md z-50 shadow-lg">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex justify-between items-center">
+                <div class="text-white text-2xl font-bold tracking-wider">
+                    JUDO <span class="text-primary">OLIMP</span>
+                </div>
+                <div class="hidden md:flex items-center gap-8">
+                    <a href="#about" class="text-white hover:text-accent transition-colors font-medium nav-link" data-bs="O nama" data-en="About">O nama</a>
+                    <a href="#locations" class="text-white hover:text-accent transition-colors font-medium nav-link" data-bs="Lokacije" data-en="Locations">Lokacije</a>
+                    <a href="#schedule" class="text-white hover:text-accent transition-colors font-medium nav-link" data-bs="Raspored" data-en="Schedule">Raspored</a>
+                    <a href="#benefits" class="text-white hover:text-accent transition-colors font-medium nav-link" data-bs="Pogodnosti" data-en="Benefits">Pogodnosti</a>
+                    <a href="#contact" class="text-white hover:text-accent transition-colors font-medium nav-link" data-bs="Kontakt" data-en="Contact">Kontakt</a>
+                    <button onclick="toggleLanguage()" class="bg-primary hover:bg-accent text-white px-4 py-2 rounded-lg font-bold transition-all hover:scale-105 lang-toggle">EN</button>
+                </div>
+                <!-- Mobile Menu Button -->
+                <button onclick="toggleMobileMenu()" class="md:hidden text-white text-2xl">
+                    <span id="menu-icon">☰</span>
+                </button>
+            </div>
+            <!-- Mobile Menu -->
+            <div id="mobile-menu" class="hidden md:hidden mt-4 pb-4">
+                <div class="flex flex-col gap-4">
+                    <a href="#about" class="text-white hover:text-accent transition-colors nav-link" data-bs="O nama" data-en="About">O nama</a>
+                    <a href="#locations" class="text-white hover:text-accent transition-colors nav-link" data-bs="Lokacije" data-en="Locations">Lokacije</a>
+                    <a href="#schedule" class="text-white hover:text-accent transition-colors nav-link" data-bs="Raspored" data-en="Schedule">Raspored</a>
+                    <a href="#benefits" class="text-white hover:text-accent transition-colors nav-link" data-bs="Pogodnosti" data-en="Benefits">Pogodnosti</a>
+                    <a href="#contact" class="text-white hover:text-accent transition-colors nav-link" data-bs="Kontakt" data-en="Contact">Kontakt</a>
+                    <button onclick="toggleLanguage()" class="bg-primary hover:bg-accent text-white px-4 py-2 rounded-lg font-bold transition-all lang-toggle">EN</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="relative h-screen flex items-center justify-center bg-gradient-to-br from-secondary via-secondary to-primary overflow-hidden">
+        <div class="absolute inset-0 bg-black/30"></div>
+        <div class="relative z-10 text-center text-white px-4 max-w-4xl mx-auto">
+            <!-- Logo -->
+            <img src="/static/jko-logo.jpg" alt="Judo Klub Olimp Logo" class="mx-auto mb-6 max-w-xs md:max-w-sm lg:max-w-md w-auto h-32 md:h-40 lg:h-48 rounded-xl shadow-xl fade-in-up" loading="lazy">
+            <h1 class="text-5xl md:text-7xl font-bold mb-6 fade-in-up" data-bs="Judo Klub Olimp" data-en="Judo Club Olimp">Judo Klub Olimp</h1>
+            <p class="text-xl md:text-3xl mb-8 fade-in-up" data-bs="Snaga • Disciplina • Poštovanje" data-en="Strength • Discipline • Respect">Snaga • Disciplina • Poštovanje</p>
+            <p class="text-lg md:text-xl mb-8 max-w-2xl mx-auto fade-in-up" data-bs="Osnovani 2011. godine • Više od 150 članova • Preko 50 medalja" data-en="Founded in 2011 • Over 150 members • 50+ medals">Osnovani 2011. godine • Više od 150 članova • Preko 50 medalja</p>
+            <a href="#contact" class="inline-block bg-primary hover:bg-accent text-white px-8 py-4 rounded-full text-lg font-bold transition-all hover:scale-105 hover:shadow-2xl fade-in-up" data-bs="Pridruži nam se" data-en="Join Us">Pridruži nam se</a>
+        </div>
+        <!-- Decorative Element -->
+        <div class="absolute bottom-0 left-0 right-0">
+            <svg viewBox="0 0 1200 120" class="w-full h-24">
+                <path d="M0,60 Q300,20 600,60 T1200,60 L1200,120 L0,120 Z" fill="white"/>
+            </svg>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="py-16 md:py-24 px-4 bg-white">
+        <div class="container mx-auto max-w-6xl">
+            <h2 class="text-4xl md:text-5xl font-bold text-center mb-4" data-bs="O nama" data-en="About Us">O nama</h2>
+            <div class="w-24 h-1 bg-primary mx-auto mb-12"></div>
+
+            <div class="max-w-3xl mx-auto text-center mb-16">
+                <p class="text-lg md:text-xl text-gray-700 leading-relaxed mb-6" data-bs="Judo Klub Olimp osnovan je 2011. godine u Sarajevu i postao je respektabilan klub sa preko 150 članova i velikim brojem uspješnih takmičara." data-en="Judo Club Olimp was founded in 2011 in Sarajevo and has become a respectable club with over 150 members and many successful competitors.">
+                    Judo Klub Olimp osnovan je 2011. godine u Sarajevu i postao je respektabilan klub sa preko 150 članova i velikim brojem uspješnih takmičara.
+                </p>
+                <p class="text-lg md:text-xl text-gray-700 leading-relaxed" data-bs="Naši takmičari proglašavani su za najperspektivnije i osvojili su preko 50 medalja sa domaćih i međunarodnih takmičenja." data-en="Our competitors have been recognized as the most promising and have won over 50 medals at domestic and international competitions.">
+                    Naši takmičari proglašavani su za najperspektivnije i osvojili su preko 50 medalja sa domaćih i međunarodnih takmičenja.
+                </p>
+            </div>
+
+            <!-- Features Grid -->
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="bg-gray-50 p-8 rounded-xl shadow-lg hover:shadow-xl transition-all hover:-translate-y-2 text-center">
+                    <div class="text-6xl mb-4">🥋</div>
+                    <h3 class="text-2xl font-bold text-primary mb-3" data-bs="Iskusni treneri" data-en="Experienced Coaches">Iskusni treneri</h3>
+                    <p class="text-gray-600" data-bs="Certificirani i iskusni treneri sa dugogodišnjim iskustvom u radu sa takmičarima" data-en="Certified and experienced coaches with years of working with competitors">Certificirani i iskusni treneri sa dugogodišnjim iskustvom u radu sa takmičarima</p>
+                </div>
+
+                <div class="bg-gray-50 p-8 rounded-xl shadow-lg hover:shadow-xl transition-all hover:-translate-y-2 text-center">
+                    <div class="text-6xl mb-4">🏆</div>
+                    <h3 class="text-2xl font-bold text-primary mb-3" data-bs="Učešće na takmičenjima" data-en="Competition Participation">Učešće na takmičenjima</h3>
+                    <p class="text-gray-600" data-bs="Redovno učešće na međunarodnim i domaćim takmičenjima sa izvrsnim rezultatima" data-en="Regular participation in international and domestic competitions with excellent results">Redovno učešće na međunarodnim i domaćim takmičenjima sa izvrsnim rezultatima</p>
+                </div>
+
+                <div class="bg-gray-50 p-8 rounded-xl shadow-lg hover:shadow-xl transition-all hover:-translate-y-2 text-center">
+                    <div class="text-6xl mb-4">🎓</div>
+                    <h3 class="text-2xl font-bold text-primary mb-3" data-bs="Besplatni projekti" data-en="Free Projects">Besplatni projekti</h3>
+                    <p class="text-gray-600" data-bs="Organizujemo besplatne škole judo-a za djecu i mlade uz podršku BH Telecoma" data-en="We organize free judo schools for children and youth with support from BH Telecom">Organizujemo besplatne škole judo-a za djecu i mlade uz podršku BH Telecoma</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Locations Section -->
+    <section id="locations" class="py-16 md:py-24 px-4 bg-gray-50">
+        <div class="container mx-auto max-w-6xl">
+            <h2 class="text-4xl md:text-5xl font-bold text-center mb-4" data-bs="Naše lokacije" data-en="Our Locations">Naše lokacije</h2>
+            <div class="w-24 h-1 bg-primary mx-auto mb-12"></div>
+
+            <div class="grid md:grid-cols-2 gap-8">
+                <div class="bg-white p-8 rounded-xl shadow-lg border-l-4 border-primary">
+                    <div class="text-5xl mb-4">📍</div>
+                    <h3 class="text-2xl font-bold mb-4 text-secondary">TC Robot Socijalno</h3>
+                    <p class="text-gray-600 mb-2 font-semibold" data-bs="3. sprat" data-en="3rd Floor">3. sprat</p>
+                    <p class="text-lg text-primary font-bold" data-bs="Ponedjeljak, Srijeda, Subota" data-en="Monday, Wednesday, Saturday">Ponedjeljak, Srijeda, Subota</p>
+                    <p class="text-xl font-bold text-secondary">18:30 - 20:00</p>
+                </div>
+
+                <div class="bg-white p-8 rounded-xl shadow-lg border-l-4 border-accent">
+                    <div class="text-5xl mb-4">📍</div>
+                    <h3 class="text-2xl font-bold mb-4 text-secondary" data-bs="Dječija kuća Novo Sarajevo" data-en="Children's House Novo Sarajevo">Dječija kuća Novo Sarajevo</h3>
+                    <p class="text-gray-600 mb-2 font-semibold">Grbavička</p>
+                    <p class="text-lg text-primary font-bold" data-bs="Utorak, Četvrtak, Subota" data-en="Tuesday, Thursday, Saturday">Utorak, Četvrtak, Subota</p>
+                    <p class="text-xl font-bold text-secondary">19:10 - 20:30</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Schedule Section -->
+    <section id="schedule" class="py-16 md:py-24 px-4 bg-secondary text-white">
+        <div class="container mx-auto max-w-6xl">
+            <h2 class="text-4xl md:text-5xl font-bold text-center mb-4" data-bs="Raspored treninga" data-en="Training Schedule">Raspored treninga</h2>
+            <div class="w-24 h-1 bg-accent mx-auto mb-12"></div>
+
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="bg-white/10 backdrop-blur-sm p-8 rounded-xl border-l-4 border-accent">
+                    <h3 class="text-2xl md:text-3xl font-bold text-accent mb-6" data-bs="Djeca (6-10 godina)" data-en="Children (6-10 years)">Djeca (6-10 godina)</h3>
+                    <div class="space-y-4">
+                        <div class="border-b border-white/20 pb-3">
+                            <p class="font-semibold text-lg" data-bs="Ponedjeljak" data-en="Monday">Ponedjeljak</p>
+                            <p class="text-xl">18:30 - 20:00</p>
+                        </div>
+                        <div class="border-b border-white/20 pb-3">
+                            <p class="font-semibold text-lg" data-bs="Srijeda" data-en="Wednesday">Srijeda</p>
+                            <p class="text-xl">18:30 - 20:00</p>
+                        </div>
+                        <div>
+                            <p class="font-semibold text-lg" data-bs="Subota" data-en="Saturday">Subota</p>
+                            <p class="text-xl">18:30 - 20:00</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white/10 backdrop-blur-sm p-8 rounded-xl border-l-4 border-accent">
+                    <h3 class="text-2xl md:text-3xl font-bold text-accent mb-6" data-bs="Juniori (11-15 godina)" data-en="Juniors (11-15 years)">Juniori (11-15 godina)</h3>
+                    <div class="space-y-4">
+                        <div class="border-b border-white/20 pb-3">
+                            <p class="font-semibold text-lg" data-bs="Utorak" data-en="Tuesday">Utorak</p>
+                            <p class="text-xl">19:10 - 20:30</p>
+                        </div>
+                        <div class="border-b border-white/20 pb-3">
+                            <p class="font-semibold text-lg" data-bs="Četvrtak" data-en="Thursday">Četvrtak</p>
+                            <p class="text-xl">19:10 - 20:30</p>
+                        </div>
+                        <div>
+                            <p class="font-semibold text-lg" data-bs="Subota" data-en="Saturday">Subota</p>
+                            <p class="text-xl">19:10 - 20:30</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white/10 backdrop-blur-sm p-8 rounded-xl border-l-4 border-accent">
+                    <h3 class="text-2xl md:text-3xl font-bold text-accent mb-6" data-bs="Odrasli (16+ godina)" data-en="Adults (16+ years)">Odrasli (16+ godina)</h3>
+                    <div class="space-y-4">
+                        <div class="border-b border-white/20 pb-3">
+                            <p class="font-semibold text-lg" data-bs="Sve dane" data-en="All days">Sve dane</p>
+                            <p class="text-xl" data-bs="Po dogovoru" data-en="By arrangement">Po dogovoru</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Benefits Section -->
+    <section id="benefits" class="py-16 md:py-24 px-4 bg-white">
+        <div class="container mx-auto max-w-6xl">
+            <h2 class="text-4xl md:text-5xl font-bold text-center mb-4" data-bs="Pogodnosti" data-en="Benefits">Pogodnosti</h2>
+            <div class="w-24 h-1 bg-primary mx-auto mb-12"></div>
+
+            <div class="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+                <div class="bg-gradient-to-br from-primary to-red-700 text-white p-8 rounded-xl shadow-xl">
+                    <div class="text-5xl mb-4">👨‍👩‍👧‍👦</div>
+                    <h3 class="text-2xl font-bold mb-4" data-bs="Popusti za porodice" data-en="Family Discounts">Popusti za porodice</h3>
+                    <ul class="space-y-2 text-lg">
+                        <li data-bs="✓ Prvo dijete: popust 50%" data-en="✓ First child: 50% discount">✓ Prvo dijete: popust 50%</li>
+                        <li data-bs="✓ Drugo dijete: popust 50%" data-en="✓ Second child: 50% discount">✓ Drugo dijete: popust 50%</li>
+                        <li data-bs="✓ Treće dijete: besplatno" data-en="✓ Third child: free">✓ Treće dijete: besplatno</li>
+                    </ul>
+                </div>
+
+                <div class="bg-gradient-to-br from-accent to-yellow-600 text-white p-8 rounded-xl shadow-xl">
+                    <div class="text-5xl mb-4">❤️</div>
+                    <h3 class="text-2xl font-bold mb-4" data-bs="Socijalna podrška" data-en="Social Support">Socijalna podrška</h3>
+                    <p class="text-lg" data-bs="Besplatno treniranje za djecu iz socijalno ugroženih porodica, bez obzira na broj djece u porodici" data-en="Free training for children from socially vulnerable families, regardless of the number of children in the family">
+                        Besplatno treniranje za djecu iz socijalno ugroženih porodica, bez obzira na broj djece u porodici
+                    </p>
+                </div>
+
+                <div class="bg-gradient-to-br from-secondary to-blue-900 text-white p-8 rounded-xl shadow-xl md:col-span-2">
+                    <div class="text-5xl mb-4">🛍️</div>
+                    <h3 class="text-2xl font-bold mb-4" data-bs="Dodatne pogodnosti" data-en="Additional Benefits">Dodatne pogodnosti</h3>
+                    <p class="text-lg" data-bs="Popust pri kupovini opreme u sportskom klubu" data-en="Discount on equipment purchases at the sports club">
+                        Popust pri kupovini opreme u sportskom klubu
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="py-16 md:py-24 px-4 bg-gray-50">
+        <div class="container mx-auto max-w-6xl">
+            <h2 class="text-4xl md:text-5xl font-bold text-center mb-4" data-bs="Kontaktirajte nas" data-en="Contact Us">Kontaktirajte nas</h2>
+            <div class="w-24 h-1 bg-primary mx-auto mb-12"></div>
+
+            <div class="grid md:grid-cols-3 gap-8 mb-12">
+                <div class="bg-white p-8 rounded-xl shadow-lg text-center hover:shadow-xl transition-shadow">
+                    <div class="text-6xl mb-4">📧</div>
+                    <h3 class="text-2xl font-bold mb-3 text-secondary">Email</h3>
+                    <a href="mailto:aneslicina@gmail.com" class="text-primary hover:text-accent text-lg transition-colors">aneslicina@gmail.com</a>
+                </div>
+
+                <div class="bg-white p-8 rounded-xl shadow-lg text-center hover:shadow-xl transition-shadow">
+                    <div class="text-6xl mb-4">📱</div>
+                    <h3 class="text-2xl font-bold mb-3 text-secondary" data-bs="Telefon" data-en="Phone">Telefon</h3>
+                    <a href="tel:+38761330879" class="text-primary hover:text-accent text-lg transition-colors">+387 61 330 879</a>
+                    <p class="text-gray-600 mt-2">Anes Ličina</p>
+                </div>
+
+                <div class="bg-white p-8 rounded-xl shadow-lg text-center hover:shadow-xl transition-shadow">
+                    <div class="text-6xl mb-4">📍</div>
+                    <h3 class="text-2xl font-bold mb-3 text-secondary" data-bs="Lokacija" data-en="Location">Lokacija</h3>
+                    <p class="text-gray-600 text-lg">Urijan Dedina 109<br>Sarajevo</p>
+                </div>
+            </div>
+
+            <!-- Social Links -->
+            <div class="text-center">
+                <h3 class="text-2xl font-bold mb-6" data-bs="Pratite nas" data-en="Follow Us">Pratite nas</h3>
+                <div class="flex justify-center gap-6">
+                    <a href="https://www.facebook.com/judoklubolimp2011" target="_blank" class="bg-primary hover:bg-accent text-white w-16 h-16 rounded-full flex items-center justify-center text-3xl transition-all hover:scale-110 shadow-lg">
+                        f
+                    </a>
+                    <a href="https://www.instagram.com/judo_klub_olimp" target="_blank" class="bg-gradient-to-br from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white w-16 h-16 rounded-full flex items-center justify-center text-3xl transition-all hover:scale-110 shadow-lg">
+                        📷
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-secondary text-white py-8 px-4">
+        <div class="container mx-auto text-center">
+            <p class="text-lg">&copy; 2024 Judo Klub Olimp. <span data-bs="Sva prava zadržana." data-en="All rights reserved.">Sva prava zadržana.</span></p>
+            <p class="text-gray-400 mt-2" data-bs="Osnovani 2011. godine u Sarajevu" data-en="Founded in 2011 in Sarajevo">Osnovani 2011. godine u Sarajevu</p>
+        </div>
+    </footer>
+
+    <script>
+        let currentLang = 'bs';
+
+        function toggleLanguage() {
+            currentLang = currentLang === 'bs' ? 'en' : 'bs';
+            const buttons = document.querySelectorAll('.lang-toggle');
+            buttons.forEach(button => {
+                button.textContent = currentLang === 'bs' ? 'EN' : 'BS';
+            });
+
+            document.querySelectorAll('[data-bs][data-en]').forEach(el => {
+                el.textContent = el.getAttribute(`data-${currentLang}`);
+            });
+
+            document.documentElement.lang = currentLang;
+        }
+
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            const icon = document.getElementById('menu-icon');
+            menu.classList.toggle('hidden');
+            icon.textContent = menu.classList.contains('hidden') ? '☰' : '✕';
+        }
+
+        // Smooth scrolling
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    // Close mobile menu if open
+                    const menu = document.getElementById('mobile-menu');
+                    const icon = document.getElementById('menu-icon');
+                    if (!menu.classList.contains('hidden')) {
+                        menu.classList.add('hidden');
+                        icon.textContent = '☰';
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>
