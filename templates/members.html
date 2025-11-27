@@ -155,7 +155,7 @@
   <div class="bg-white rounded shadow-lg max-w-md w-full mx-4">
     <div class="flex items-center justify-between px-4 py-2 border-b">
       <h3 class="text-lg font-medium">{{ _('members.unpaid_details') if _('members.unpaid_details') else 'Unpaid months' }}</h3>
-      <button id="unpaid-modal-close" class="text-gray-600 hover:text-gray-800">&times;</button>
+      <button id="unpaid-modal-close" class="text-gray-600 hover:text-gray-800" aria-label="{{ _('close') if _('close') else 'Close' }}" title="{{ _('close') if _('close') else 'Close' }}">&times;</button>
     </div>
     <div class="p-4" id="unpaid-modal-body">
       <!-- populated dynamically -->
@@ -210,6 +210,25 @@
         return;
       }
       target = target.parentElement;
+    }
+
+    // If click was on a pagination link, intercept and do htmx/ajax replacement
+    var el = e.target.closest && e.target.closest('.members-pag-link');
+    if (el) {
+      e.preventDefault();
+      var url = el.getAttribute('href');
+      // Normalize URL: remove stray whitespace after ? or & and trim ends
+      if (typeof url === 'string') {
+        url = url.replace(/\?\s+/, '?').replace(/&\s+/g, '&').trim();
+      }
+      if (window.htmx) {
+        // Use HTMX to get the fragment and swap it into #members-list, and update URL
+        htmx.ajax('GET', url, {target:'#members-list', swap:'innerHTML'});
+        if (history && history.pushState) history.pushState(null, '', url);
+      } else {
+        // fallback to normal navigation
+        window.location.href = url;
+      }
     }
   });
 

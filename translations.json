@@ -109,5 +109,7 @@
   "feedback.created": { "en": "Created successfully", "bs": "Uspješno kreirano" },
   "feedback.updated": { "en": "Updated successfully", "bs": "Uspješno ažurirano" },
   "feedback.deleted": { "en": "Deleted successfully", "bs": "Uspješno obrisano" },
-  "feedback.error": { "en": "An error occurred", "bs": "Došlo je do greške" }
+  "feedback.error": { "en": "An error occurred", "bs": "Došlo je do greške" },
+
+  "close": { "en": "Close", "bs": "Zatvori" }
 }

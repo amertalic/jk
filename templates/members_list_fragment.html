@@ -116,11 +116,11 @@
 
       <nav class="flex items-center gap-2" aria-label="Pagination">
         {% if page > 1 %}
-          <a href="/members?{{ qs(page-1) }}" class="px-3 py-1 border rounded bg-white hover:bg-gray-50">&larr; {{ _('members.prev') }}</a>
+          <a href="/members?{{ qs(page-1) | trim }}" hx-get="/members?{{ qs(page-1) | trim }}" hx-target="#members-list" hx-swap="innerHTML" hx-push-url="true" class="members-pag-link px-3 py-1 border rounded bg-white hover:bg-gray-50">&larr; {{ _('members.prev') }}</a>
         {% endif %}
         <div class="px-3 py-1 border rounded bg-white">{{ page }} / {{ last_page }}</div>
         {% if page < last_page %}
-          <a href="/members?{{ qs(page+1) }}" class="px-3 py-1 border rounded bg-white hover:bg-gray-50">{{ _('members.next') }} &rarr;</a>
+          <a href="/members?{{ qs(page+1) | trim }}" hx-get="/members?{{ qs(page+1) | trim }}" hx-target="#members-list" hx-swap="innerHTML" hx-push-url="true" class="members-pag-link px-3 py-1 border rounded bg-white hover:bg-gray-50">{{ _('members.next') }} &rarr;</a>
         {% endif %}
       </nav>
     </div>
